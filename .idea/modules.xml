@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/My Pygame.iml" filepath="$PROJECT_DIR$/.idea/My Pygame.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../PlaneGame_Exemple/.idea/PlaneGame_Exemple.iml" filepath="$PROJECT_DIR$/../PlaneGame_Exemple/.idea/PlaneGame_Exemple.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../spacemax7.89/.idea/spacemax7.89.iml" filepath="$PROJECT_DIR$/../spacemax7.89/.idea/spacemax7.89.iml" />
+    </modules>
+  </component>
+</project>
