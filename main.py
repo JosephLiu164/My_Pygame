@@ -73,18 +73,15 @@ destroy_my_plane = pyganim.PygAnimation([("image/hero_blowup_n1.png", 200),
                                          ("image/hero_blowup_n2.png", 200),
                                          ("image/hero_blowup_n3.png", 200),
                                          ("image/hero_blowup_n4.png", 200)])
-destroy_my_plane.play()
-
 while True:
     for event in pygame.event.get():
         if event.type == QUIT:
             exit()
 
     # ===========Combine the delay value with frame rate to achieve some animations=======
-    total_frame += 1
-    # if delay == 0:
-    #     delay = frame_rate
-    # delay -= 1
+    if delay == 0:
+        delay = frame_rate
+    delay -= 1
 
     # ============Set the background to scroll (repeatedly blit same two images)========
     screen.blit(background, (x,y))
@@ -110,6 +107,7 @@ while True:
     # =========When the plane is destroyed===========
     if not me.active:
         me_down_sound.play()
+
         me.reset()
 
     # ========Draw the plane and switch between two images to realize the air-jetting effect======
