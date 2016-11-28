@@ -69,7 +69,11 @@ e3_destroy_index = 0
 me_destroy_index = 0
 
 # =================Destroy animation of my plane=================
-destroy_my_plane = pyganim.PygAnimation([('frame1.png', 200), ('frame2.png', 200), ('frame3.png', 600)])
+destroy_my_plane = pyganim.PygAnimation([("image/hero_blowup_n1.png", 200),
+                                         ("image/hero_blowup_n2.png", 200),
+                                         ("image/hero_blowup_n3.png", 200),
+                                         ("image/hero_blowup_n4.png", 200)])
+destroy_my_plane.play()
 
 while True:
     for event in pygame.event.get():
@@ -77,9 +81,10 @@ while True:
             exit()
 
     # ===========Combine the delay value with frame rate to achieve some animations=======
-    if delay == 0:
-        delay = frame_rate
-    delay -= 1
+    total_frame += 1
+    # if delay == 0:
+    #     delay = frame_rate
+    # delay -= 1
 
     # ============Set the background to scroll (repeatedly blit same two images)========
     screen.blit(background, (x,y))
@@ -103,7 +108,7 @@ while True:
         me.move_right()
 
     # =========When the plane is destroyed===========
-    elif not me.active:
+    if not me.active:
         me_down_sound.play()
         me.reset()
 
@@ -131,10 +136,13 @@ while True:
 
     # =====Drawing the destroying image of my plane and enemy plane======
     if not me.active:
-        if delay % 3 == 0:
-            screen.blit(me.destroy_images[me_destroy_index], me.rect)  # Drawing the destroying animation
-            me_destroy_index = (me_destroy_index + 1) % 4
-        if me_destroy_index == 0:
+        destroy_my_plane.blit(screen, me.rect)
+
+    # if not me.active:
+    #     if delay % 3 == 0:
+    #         screen.blit(me.destroy_images[me_destroy_index], me.rect)  # Drawing the destroying animation
+    #         me_destroy_index = (me_destroy_index + 1) % 4
+    #     if me_destroy_index == 0:
 
     pygame.display.flip()
     clock.tick(frame_rate)  # Set the frame rate to 60
