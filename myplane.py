@@ -5,15 +5,15 @@ class MyPlane(pygame.sprite.Sprite):
     def __init__(self, bg_size):
         pygame.sprite.Sprite.__init__(self)
 
-        self.image1 = pygame.image.load("image/hero1.png")  # Load plane image1
-        self.image2 = pygame.image.load("image/hero2.png")  # Load plane image2
-        self.mask = pygame.mask.from_surface(self.image1)  # Get plane image mask to accurately detect collision
+        self.images = [pygame.image.load("image/hero1.png"),
+                       pygame.image.load("image/hero2.png")]# Load 2 plane images
+        self.mask = pygame.mask.from_surface(self.images[0])  # Get plane image mask to accurately detect collision
         self.destroy_images = []  # 加载飞机损毁图片
         self.destroy_images.extend([pygame.image.load("image/hero_blowup_n1.png"),
                                     pygame.image.load("image/hero_blowup_n2.png"),
                                     pygame.image.load("image/hero_blowup_n3.png"),
                                     pygame.image.load("image/hero_blowup_n4.png")])
-        self.rect = self.image1.get_rect()  # Get the position of my plane
+        self.rect = self.images[0].get_rect()  # Get the position of my plane
         self.rect.left, self.rect.top = (bg_size[0] - self.rect.width) // 2, (bg_size[1] - self.rect.height - 30)  # 定义飞机初始化位置，底部预留60像素
         self.bg_width, self.bg_height = bg_size[0], bg_size[1]
         self.speed = 10  # Set moving speed of the plane
