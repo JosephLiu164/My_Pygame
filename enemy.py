@@ -47,6 +47,7 @@ class SmallEnemy(pygame.sprite.Sprite):  # Inheriting from Sprite class
 # ====================Define the mid enemy behaviors====================
 class MidEnemy(pygame.sprite.Sprite):
     mid_enemy_energy = 5
+    shooting_time_index = 0
 
     def __init__(self, bg_size):
         pygame.sprite.Sprite.__init__(self)
@@ -85,6 +86,7 @@ class MidEnemy(pygame.sprite.Sprite):
 # ====================Define the big enemy behaviors====================
 class BigEnemy(pygame.sprite.Sprite):
     big_enemy_energy = 10
+    shooting_time_index = 0
 
     def __init__(self, bg_size):
         pygame.sprite.Sprite.__init__(self)
