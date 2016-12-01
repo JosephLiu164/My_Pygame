@@ -44,7 +44,7 @@ class Bullet2(pygame.sprite.Sprite, Bullet):
         self.mask = pygame.mask.from_surface(self.image)
 
 class Bullet3(pygame.sprite.Sprite, Bullet):
-    shooting_interval = 70
+    shooting_interval = 100
 
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)

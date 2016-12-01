@@ -65,6 +65,7 @@ class MidEnemy(pygame.sprite.Sprite):
         self.rect.left, self.rect.top = (randint(0, self.bg_width - self.rect.width),
                                          randint(-1400, -600))  # The spot where the plane appears
         self.energy = self.mid_enemy_energy
+        self.supply = self.generate_supply()
         self.active = True
         self.hit = False
 
@@ -82,6 +83,12 @@ class MidEnemy(pygame.sprite.Sprite):
         self.hit = False
         self.energy = MidEnemy.mid_enemy_energy
 
+    def generate_supply(self):  # middle enemy has several bullet supplies when generated
+        random_supply = randint(0, 100)
+        if 0 <= random_supply <= 50:
+            return None
+        elif 51 <= random_supply <= 100:
+            return supply.BulletSupply()
 
 # ====================Define the big enemy behaviors====================
 class BigEnemy(pygame.sprite.Sprite):
@@ -116,9 +123,9 @@ class BigEnemy(pygame.sprite.Sprite):
 
     def generate_supply(self):  # Big enemy has several supplies when generated
         random_supply = randint(0, 100)
-        if 0 <= random_supply <= 50:
+        if 0 <= random_supply <= 70:
             return None
-        elif 51 <= random_supply <= 100:
+        elif 71 <= random_supply <= 100:
             return supply.BulletSupply()
 
     def move(self):

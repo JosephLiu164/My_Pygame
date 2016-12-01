@@ -20,6 +20,7 @@ gameover_image = pygame.image.load("image/game_over.png")  # game over backgroun
 gameover_rect = gameover_image.get_rect()
 clock = pygame.time.Clock()  # Set frame rate
 frame_rate = 60
+game_over = False
 
 x = 0  # Set the initial background position
 y = 0
@@ -47,6 +48,7 @@ get_bullet_sound.set_volume(0.2)
 level_up_sound = pygame.mixer.Sound("sound/achievement.wav")
 level_up_sound.set_volume(0.2)
 
+
 # ===============Colors in common use =================
 WHITE = (255, 255, 255)
 BLACK = (0,0,0)
@@ -59,9 +61,13 @@ me = myplane.MyPlane(bg_size)
 switch_image = False
 
 # ===============user score=================
-score = 80000
+score = 0
 score_font = pygame.font.SysFont("Chalkboard", 24)
-level = 1 # current game difficulty level
+game_over_player_score_font = pygame.font.SysFont("Chalkboard", 48)
+high_score_font = pygame.font.SysFont("Chalkboard", 36)
+
+# =========== current game difficulty level ===========
+level = 1
 
 # =================A general animation class and function==================
 all_animation = {}
@@ -219,80 +225,77 @@ while True:
     if y1 > HEIGHT:
         y1 = -HEIGHT
 
-    # =============Detect whether my plane is destroyed==============
-    if me.life <= 0:
-        me.life = 0
-        me.active = False
-
     # =========Shooting bullets according to different bullet levels of my plane==========
-    if me.bullet_level <= 3:
-        if me.bullet_level == 1:
-            bullet.Bullet1.shooting_interval = 20
-        elif me.bullet_level == 2:
-            bullet.Bullet1.shooting_interval = 15
-        elif me.bullet_level == 3:
-            bullet.Bullet1.shooting_interval = 11
-        if me.shooting_time_index % bullet.Bullet1.shooting_interval == 0:  # Shoot a bullet at a certain interval
-            bullet_sound.play()
-            bullets[bullet_index].shoot(me.rect.midtop)
-            bullet_index = (bullet_index + 1) % bullet_num
-    elif 4 <= me.bullet_level <= 6:
-        if me.bullet_level == 4:
-            bullet.Bullet1.shooting_interval = 17
-        elif me.bullet_level == 5:
-            bullet.Bullet1.shooting_interval = 12
-        elif me.bullet_level == 6:
-            bullet.Bullet1.shooting_interval = 8
-        if me.shooting_time_index % bullet.Bullet1.shooting_interval == 0:
-            bullet_sound.play()
-            bullets[bullet_index].shoot((me.rect.centerx - 35, me.rect.centery))
-            bullets[bullet_index + 1].shoot((me.rect.centerx + 28, me.rect.centery))
-            bullet_index = (bullet_index + 2) % bullet_num
-            if bullet_index >= bullet_num-1:
-                bullet_index = 0
+    if me.active:
+        if me.bullet_level <= 3:
+            if me.bullet_level == 1:
+                bullet.Bullet1.shooting_interval = 20
+            elif me.bullet_level == 2:
+                bullet.Bullet1.shooting_interval = 15
+            elif me.bullet_level == 3:
+                bullet.Bullet1.shooting_interval = 11
+            if me.shooting_time_index % bullet.Bullet1.shooting_interval == 0:  # Shoot a bullet at a certain interval
+                bullet_sound.play()
+                bullets[bullet_index].shoot(me.rect.midtop)
+                bullet_index = (bullet_index + 1) % bullet_num
+        elif 4 <= me.bullet_level <= 6:
+            if me.bullet_level == 4:
+                bullet.Bullet1.shooting_interval = 17
+            elif me.bullet_level == 5:
+                bullet.Bullet1.shooting_interval = 12
+            elif me.bullet_level == 6:
+                bullet.Bullet1.shooting_interval = 8
+            if me.shooting_time_index % bullet.Bullet1.shooting_interval == 0:
+                bullet_sound.play()
+                bullets[bullet_index].shoot((me.rect.centerx - 35, me.rect.centery))
+                bullets[bullet_index + 1].shoot((me.rect.centerx + 28, me.rect.centery))
+                bullet_index = (bullet_index + 2) % bullet_num
+                if bullet_index >= bullet_num-1:
+                    bullet_index = 0
 
-    elif 7<= me.bullet_level <= 9:
-        if me.bullet_level == 7:
-            bullet.Bullet1.shooting_interval = 9
-        elif me.bullet_level == 8:
-            bullet.Bullet1.shooting_interval = 7
-        elif me.bullet_level == 9:
+        elif 7<= me.bullet_level <= 9:
+            if me.bullet_level == 7:
+                bullet.Bullet1.shooting_interval = 9
+            elif me.bullet_level == 8:
+                bullet.Bullet1.shooting_interval = 7
+            elif me.bullet_level == 9:
+                bullet.Bullet1.shooting_interval = 4
+            if me.shooting_time_index % bullet.Bullet1.shooting_interval == 0:
+                bullet_sound.play()
+                bullets[bullet_index].shoot((me.rect.centerx - 33, me.rect.centery),105)
+                bullets[bullet_index + 1].shoot((me.rect.centerx-6, me.rect.centery),90)
+                bullets[bullet_index + 2].shoot((me.rect.centerx + 28, me.rect.centery),75)
+                bullet_index = (bullet_index + 3) % bullet_num
+                if bullet_index >= bullet_num - 2:
+                    bullet_index = 0
+
+        elif me.bullet_level == 10:
             bullet.Bullet1.shooting_interval = 4
-        if me.shooting_time_index % bullet.Bullet1.shooting_interval == 0:
-            bullet_sound.play()
-            bullets[bullet_index].shoot((me.rect.centerx - 33, me.rect.centery),105)
-            bullets[bullet_index + 1].shoot((me.rect.centerx-6, me.rect.centery),90)
-            bullets[bullet_index + 2].shoot((me.rect.centerx + 28, me.rect.centery),75)
-            bullet_index = (bullet_index + 3) % bullet_num
-            if bullet_index >= bullet_num - 2:
-                bullet_index = 0
+            if me.shooting_time_index % bullet.Bullet1.shooting_interval == 0:
+                bullet_sound.play()
+                bullets[bullet_index].shoot((me.rect.centerx - 33, me.rect.centery), 120)
+                bullets[bullet_index + 1].shoot((me.rect.centerx - 6, me.rect.centery), 90)
+                bullets[bullet_index + 2].shoot((me.rect.centerx + 28, me.rect.centery), 60)
+                bullets[bullet_index + 3].shoot((me.rect.centerx + 20, me.rect.centery), 75)
+                bullets[bullet_index + 4].shoot((me.rect.centerx - 25, me.rect.centery), 105)
+                bullet_index = (bullet_index + 5) % bullet_num
+                if bullet_index >= bullet_num - 4:
+                    bullet_index = 0
 
-    elif me.bullet_level == 10:
-        bullet.Bullet1.shooting_interval = 4
-        if me.shooting_time_index % bullet.Bullet1.shooting_interval == 0:
-            bullet_sound.play()
-            bullets[bullet_index].shoot((me.rect.centerx - 33, me.rect.centery), 120)
-            bullets[bullet_index + 1].shoot((me.rect.centerx - 6, me.rect.centery), 90)
-            bullets[bullet_index + 2].shoot((me.rect.centerx + 28, me.rect.centery), 60)
-            bullets[bullet_index + 3].shoot((me.rect.centerx + 20, me.rect.centery), 75)
-            bullets[bullet_index + 4].shoot((me.rect.centerx - 25, me.rect.centery), 105)
-            bullet_index = (bullet_index + 5) % bullet_num
-            if bullet_index >= bullet_num - 4:
-                bullet_index = 0
-
-    # ================The move of the bullets===========-
-    for b in bullets:
-        if b.active:
-            if me.bullet_level == 1 or me.bullet_level == 4 or me.bullet_level == 7:
-                b.move()
-                bullet_image = b.image1
-            elif me.bullet_level == 2 or me.bullet_level == 5 or me.bullet_level == 8:
-                b.move()
-                bullet_image = b.image2
-            elif me.bullet_level == 3 or me.bullet_level == 6 or me.bullet_level == 9 or me.bullet_level == 10:
-                b.move()
-                bullet_image = b.image3
-            screen.blit(bullet_image, b.rect)
+    # ================The move of the bullets===========
+    if me.active:
+        for b in bullets:
+            if b.active:
+                if me.bullet_level == 1 or me.bullet_level == 4 or me.bullet_level == 7:
+                    b.move()
+                    bullet_image = b.image1
+                elif me.bullet_level == 2 or me.bullet_level == 5 or me.bullet_level == 8:
+                    b.move()
+                    bullet_image = b.image2
+                elif me.bullet_level == 3 or me.bullet_level == 6 or me.bullet_level == 9 or me.bullet_level == 10:
+                    b.move()
+                    bullet_image = b.image3
+                screen.blit(bullet_image, b.rect)
 
     # ================Collision between the bullets and enemy planes============
     for b in bullets:
@@ -307,50 +310,49 @@ while True:
                         e.active = False
 
     # =========Detect whether my plane touches bullets2===========
-    bullets2_hit = pygame.sprite.spritecollide(me, bullets2, False, pygame.sprite.collide_mask)
-    for b in bullets2_hit:
-        if b.active:
-            me.hit = True
-            me.life -= 10
-            b.active = False
+    if me.active:
+        bullets2_hit = pygame.sprite.spritecollide(me, bullets2, False, pygame.sprite.collide_mask)
+        for b in bullets2_hit:
+            if b.active:
+                me.hit = True
+                me.life -= 10
+                b.active = False
 
     # =========Detect whether my plane touches bullets3===========
-    bullets3_hit = pygame.sprite.spritecollide(me, bullets3, False, pygame.sprite.collide_mask)
-    for b in bullets3_hit:
-        if b.active:
-            me.hit = True
-            me.life -= 30
-            b.active = False
+    if me.active:
+        bullets3_hit = pygame.sprite.spritecollide(me, bullets3, False, pygame.sprite.collide_mask)
+        for b in bullets3_hit:
+            if b.active:
+                me.hit = True
+                me.life -= 30
+                b.active = False
 
     # =====Detect whether there is a collision between my plane and enemy planes======
-    enemies_down = pygame.sprite.spritecollide(me, enemies, False, pygame.sprite.collide_mask)
-    if enemies_down:  # If the list of collision detection is not empty, then collision happens.
-        for e in enemies_down:
-            if e.active:
-                if isinstance(e, enemy.SmallEnemy):
-                    me.life -= 30
-                elif isinstance(e, enemy.MidEnemy):
-                    me.life -= 60
-                elif isinstance(e, enemy.BigEnemy):
-                    me.life -= 90
-                e.active = False  # Enemy plane destroyed
+    if me.active:
+        enemies_down = pygame.sprite.spritecollide(me, enemies, False, pygame.sprite.collide_mask)
+        if enemies_down:  # If the list of collision detection is not empty, then collision happens.
+            for e in enemies_down:
+                if e.active:
+                    if isinstance(e, enemy.SmallEnemy):
+                        me.life -= 30
+                    elif isinstance(e, enemy.MidEnemy):
+                        me.life -= 60
+                    elif isinstance(e, enemy.BigEnemy):
+                        me.life -= 90
+                    e.active = False  # Enemy plane destroyed
 
     # =====Detect whether the plane touches the supply======
-    supplies_got = pygame.sprite.spritecollide(me, supplies, True, pygame.sprite.collide_mask)
-    for s in supplies_got:
-        if s.show:
-            get_bomb_sound.play()
-            if isinstance(s, supply.BulletSupply):
-                me.bullet_level += 1
-                if me.bullet_level >= 10:
-                    me.bullet_level = 10
-            s.show = False
+    if me.active:
+        supplies_got = pygame.sprite.spritecollide(me, supplies, True, pygame.sprite.collide_mask)
+        for s in supplies_got:
+            if s.show:
+                get_bomb_sound.play()
+                if isinstance(s, supply.BulletSupply):
+                    me.bullet_level += 1
+                    if me.bullet_level >= 10:
+                        me.bullet_level = 10
+                s.show = False
 
-    # =========When my plane is destroyed, create the animation===========
-    if not me.active:
-        screen.blit(animation_frame("me_destroy", me.destroy_images, 5), me.rect)
-        if is_finished("me_destroy"):  # When the anmation is over
-            me.reset()
 
     # =========Blit the big enemies and have them move==========
     for each in big_enemies:
@@ -393,13 +395,6 @@ while True:
             each.move()
             screen.blit(each.image, each.rect)
 
-    # =========When the middle enemy is hit==============
-    for each in mid_enemies:
-        if each.active:
-            if each.hit:
-                screen.blit(each.image_hit, each.rect)
-                each.hit = False
-
     # =========When the big enemy is hit==============
     for each in big_enemies:
         if each.active:
@@ -407,13 +402,20 @@ while True:
                 screen.blit(each.image_hit, each.rect)
                 each.hit = False
 
-    # =========When small enemy plane is destroyed, create the animation===========
-    for each in small_enemies:
+    # =========When the middle enemy is hit==============
+    for each in mid_enemies:
+        if each.active:
+            if each.hit:
+                screen.blit(each.image_hit, each.rect)
+                each.hit = False
+
+    # =========When big enemy plane is destroyed, create the animation===========
+    for each in big_enemies:
         if not each.active:
-            enemy1_down_sound.play()
-            screen.blit(animation_frame("enemy_destroy_{}".format(id(each)), each.destroy_images, 3), each.rect)
-            if all_animation.get("enemy_destroy_{}".format(id(each))).is_finished:
-                score += 100  # User score increases
+            enemy3_down_sound.play()
+            screen.blit(animation_frame("enemy_{}".format(id(each)), each.destroy_images, 5), each.rect)
+            if all_animation.get("enemy_{}".format(id(each))).is_finished:
+                score += 1500
                 each.reset()
 
     # =========When mid enemy plane is destroyed, create the animation===========
@@ -423,19 +425,19 @@ while True:
             screen.blit(animation_frame("enemy_{}".format(id(each)), each.destroy_images, 3), each.rect)
             if all_animation.get("enemy_{}".format(id(each))).is_finished:
                 score += 700
+                if each.supply:
+                    each.supply.drop(((each.rect.centerx - each.supply.rect.width / 2),
+                                      each.rect.centery))  # Dropping supplies when destroyed
+                    supplies.add(each.supply)
                 each.reset()
 
-    # =========When big enemy plane is destroyed, create the animation===========
-    for each in big_enemies:
+    # =========When small enemy plane is destroyed, create the animation===========
+    for each in small_enemies:
         if not each.active:
-            enemy3_down_sound.play()
-            screen.blit(animation_frame("enemy_{}".format(id(each)), each.destroy_images, 5), each.rect)
-            if all_animation.get("enemy_{}".format(id(each))).is_finished:
-                score += 1500
-                if each.supply:
-                    each.supply.drop(((each.rect.centerx-each.supply.rect.width/2),
-                                      each.rect.centery)) # Dropping supplies when destroyed
-                    supplies.add(each.supply)
+            enemy1_down_sound.play()
+            screen.blit(animation_frame("enemy_destroy_{}".format(id(each)), each.destroy_images, 3), each.rect)
+            if all_animation.get("enemy_destroy_{}".format(id(each))).is_finished:
+                score += 100  # User score increases
                 each.reset()
 
     # =============The move of the supplies===============
@@ -469,6 +471,34 @@ while True:
         energy_color = RED
     pygame.draw.line(screen, energy_color, (10,20), ((me.life/100)*190+11,20), 30)
     blood_bar = Rect(10, 20, 190, 20)
+
+    # =============Detect whether my plane is destroyed==============
+    if game_over == False:
+        if me.life <= 0:
+            me.life = 0
+            me.active = False
+            # When my plane is destroyed, create the animation
+            screen.blit(animation_frame("me_destroy", me.destroy_images, 5), me.rect)
+
+    # =============Show the game over screen============
+    if me.active == False:
+        if all_animation.get("me_destroy").is_finished:
+            game_over = True
+
+    # ==============When game over================
+    if game_over:
+        with open("high_score.txt", "r") as f:
+            high_score = int(f.read())
+        if score > high_score:  # If player's scoring is higher, then save it
+            with open("high_score.txt", "w") as f:
+                f.write(str(score))
+        player_score_text = game_over_player_score_font.render("{}".format(score), True, WHITE)
+        high_score_text = high_score_font.render("{}".format(high_score), True, WHITE)
+        screen.blit(gameover_image, gameover_rect) # Show game over screen
+        screen.blit(player_score_text, (230, 210))
+        screen.blit(high_score_text, (230, 390))
+        pygame.mixer.music.stop()  # Stop the background music
+        pygame.mixer.stop()  # Stop the sound effect
 
     pygame.display.flip()
     clock.tick(frame_rate)  # Set the frame rate to 60
