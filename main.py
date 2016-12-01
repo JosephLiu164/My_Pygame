@@ -50,6 +50,9 @@ level_up_sound.set_volume(0.2)
 # ===============Colors in common use =================
 WHITE = (255, 255, 255)
 BLACK = (0,0,0)
+RED = (220,20,60)
+GREEN = (0,128,0)
+YELLOW = (255,165,0)
 
 # ==============Initializing my plane==============
 me = myplane.MyPlane(bg_size)
@@ -211,6 +214,7 @@ while True:
 
     # =============Detect whether my plane is destroyed==============
     if me.life <= 0:
+        me.life = 0
         me.active = False
 
     # =========Shooting bullets according to different bullet levels of my plane==========
@@ -440,13 +444,24 @@ while True:
     # =============When my plane is hit=============
     if me.active:
         if me.hit:
-            screen.blit(animation_frame("me_hit", me.images_hit, 2), me.rect)
+            screen.blit(animation_frame("me_hit", me.images_hit, 1), me.rect)
             if all_animation.get("me_hit").is_finished:
                 me.hit = False
 
     # =============Display the user score====================
     score_text = score_font.render("Score: {}".format(str(score)), True, BLACK)
-    screen.blit(score_text, (10, 5))
+    screen.blit(score_text, (10, 40))
+
+    # =============Draw the remaining blood of my plane================
+    pygame.draw.line(screen, (75,75,75), (10,20),(200,20), 30)
+    if me.life/100 > 0.3:
+        energy_color = GREEN
+    elif 0.15<= me.life/100 <= 0.3:
+        energy_color = YELLOW
+    elif 0 <= me.life/100 < 0.15:
+        energy_color = RED
+    pygame.draw.line(screen, energy_color, (10,20), ((me.life/100)*190+11,20), 30)
+    blood_bar = Rect(10, 20, 190, 20)
 
     pygame.display.flip()
     clock.tick(frame_rate)  # Set the frame rate to 60

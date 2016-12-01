@@ -3,6 +3,7 @@ import pygame
 
 class MyPlane(pygame.sprite.Sprite):
     shooting_time_index = 0
+    life = 100
 
     def __init__(self, bg_size):
         pygame.sprite.Sprite.__init__(self)
