@@ -1,4 +1,5 @@
 import pygame
+from math import *
 
 
 class MyPlane(pygame.sprite.Sprite):
@@ -28,30 +29,22 @@ class MyPlane(pygame.sprite.Sprite):
         self.bullet_level = 7  #Bullet level of my plane
         self.life = 100
 
-    # ====================Define the movement in four directions====================
-    def move_up(self):  # Function of moving upwards. Other function of movements are similar.
-        if self.rect.top > 0:  # If my plane hasn't moved out of the screen
-            self.rect.top -= self.speed
-        else:  # If it is about to move out of the screen, then adjust the position
+    # ====================Define the movement of my plane====================
+    def move(self, angle, moving = True):
+        if self.rect.top < 0:# If my plane were to move out of the screen, adjust the position
             self.rect.top = 0
-
-    def move_down(self):
-        if self.rect.bottom < self.bg_height:
-            self.rect.top += self.speed
-        else:
+        if self.rect.bottom > self.bg_height:
             self.rect.bottom = self.bg_height
-
-    def move_left(self):
-        if self.rect.left > 0 - 30:
-            self.rect.left -= self.speed
-        else:
+        if self.rect.left < 0 - 30:
             self.rect.left = 0 - 30
-
-    def move_right(self):
-        if self.rect.right < self.bg_width + 30:
-            self.rect.right += self.speed
-        else:
+        if self.rect.right > self.bg_width + 30:
             self.rect.right = self.bg_width + 30
+        if moving:
+            self.rect.top -= self.speed * sin(angle)
+            self.rect.left += self.speed * cos(angle)
+        else:
+            return
+
 
     def reset(self):
         self.rect.left, self.rect.top = (self.bg_width - self.rect.width) // 2,\

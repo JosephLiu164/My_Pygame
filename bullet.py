@@ -10,8 +10,6 @@ class Bullet():
 
         self.rect.top -= self.speed * sin((self.angle*pi)/180)
         self.rect.left += self.speed * cos((self.angle*pi)/180)
-        # self.rect.top -= self.speed * cos((self.angle / 180) * pi)
-        # self.rect.left -= self.speed * cos(((90 - self.angle) / 180) * pi)
 
     def shoot(self, position, angle = 90):
         self.rect.left, self.rect.top = position
@@ -46,13 +44,13 @@ class Bullet2(pygame.sprite.Sprite, Bullet):
         self.mask = pygame.mask.from_surface(self.image)
 
 class Bullet3(pygame.sprite.Sprite, Bullet):
-    shooting_interval = 100
+    shooting_interval = 70
 
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.image.load("image/bullet3.png")
         self.rect = self.image.get_rect()
-        self.speed = 3
+        self.speed = 5
         self.active = False
         self.mask = pygame.mask.from_surface(self.image)
 

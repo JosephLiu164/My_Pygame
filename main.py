@@ -50,9 +50,9 @@ level_up_sound.set_volume(0.2)
 # ===============Colors in common use =================
 WHITE = (255, 255, 255)
 BLACK = (0,0,0)
-RED = (220,20,60)
-GREEN = (0,128,0)
-YELLOW = (255,165,0)
+RED = (181,75,0)
+GREEN = (0,181,24)
+YELLOW = (181,175,0)
 
 # ==============Initializing my plane==============
 me = myplane.MyPlane(bg_size)
@@ -163,18 +163,25 @@ while True:
     me.shooting_time_index += 1 # Shooting time index of my plane increase by 1 in every frame
 
     # =================Control the plane=================
+    control_plane_x = 0
+    control_plane_y = 0
     if me.active:
         key_pressed = pygame.key.get_pressed()  # Get user input sequence
         if key_pressed[K_w] or key_pressed[K_UP]:
-            me.move_up()
+            control_plane_y = 1
         if key_pressed[K_s] or key_pressed[K_DOWN]:
-            me.move_down()
+            control_plane_y = -1
         if key_pressed[K_a] or key_pressed[K_LEFT]:
-            me.move_left()
+            control_plane_x = -1
         if key_pressed[K_d] or key_pressed[K_RIGHT]:
-            me.move_right()
+            control_plane_x = 1
+        movement_angle = atan2(control_plane_y,control_plane_x)
+        if control_plane_x == 0 and control_plane_y == 0:
+            me.move(movement_angle, False)
+        else:
+            me.move(movement_angle, True)
 
-    # ==============Game difficulty level================
+            # ==============Game difficulty level================
         if level == 1 and score > 3000:
             # If reaching level 2, add 3 small enemies, 2 middle enemies and 1 big enemies.
             # Increase the speed of small enemy.
