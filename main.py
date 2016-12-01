@@ -349,9 +349,8 @@ while True:
             screen.blit(animation_frame("big_enemy_{}".format(id(each)), each.images, 3), each.rect)
             if each.shooting_time_index % bullet.Bullet3.shooting_interval == 0:  # Shoot a bullet at a certain interval
                 bullet3_angle = (180/pi)*atan2((each.rect.centery - me.rect.centery),
-                                         (me.rect.centerx -each.rect.centerx))
-                bullets3[bullet3_index].shoot((each.rect.centerx - 10, each.rect.centery),
-                                              bullet3_angle)  # Big enemy shooting bullets
+                                         (me.rect.centerx- each.rect.centerx))
+                bullets3[bullet3_index].shoot((each.rect.centerx - 10, each.rect.centery), bullet3_angle)  # Big enemy shooting bullets
                 bullet3_index = (bullet3_index + 1) % bullet3_num
 
     # ================The move of the bullets from big enemy===========-
