@@ -249,9 +249,9 @@ while True:
             bullet.Bullet1.shooting_interval = 4
         if me.shooting_time_index % bullet.Bullet1.shooting_interval == 0:
             bullet_sound.play()
-            bullets[bullet_index].shoot((me.rect.centerx - 33, me.rect.centery),15)
-            bullets[bullet_index + 1].shoot((me.rect.centerx-6, me.rect.centery),0)
-            bullets[bullet_index + 2].shoot((me.rect.centerx + 28, me.rect.centery),-15)
+            bullets[bullet_index].shoot((me.rect.centerx - 33, me.rect.centery),105)
+            bullets[bullet_index + 1].shoot((me.rect.centerx-6, me.rect.centery),90)
+            bullets[bullet_index + 2].shoot((me.rect.centerx + 28, me.rect.centery),75)
             bullet_index = (bullet_index + 3) % bullet_num
             if bullet_index >= bullet_num - 2:
                 bullet_index = 0
@@ -260,11 +260,11 @@ while True:
         bullet.Bullet1.shooting_interval = 4
         if me.shooting_time_index % bullet.Bullet1.shooting_interval == 0:
             bullet_sound.play()
-            bullets[bullet_index].shoot((me.rect.centerx - 33, me.rect.centery), 30)
-            bullets[bullet_index + 1].shoot((me.rect.centerx - 6, me.rect.centery), 0)
-            bullets[bullet_index + 2].shoot((me.rect.centerx + 28, me.rect.centery), -30)
-            bullets[bullet_index + 3].shoot((me.rect.centerx + 20, me.rect.centery), -15)
-            bullets[bullet_index + 4].shoot((me.rect.centerx - 25, me.rect.centery), 15)
+            bullets[bullet_index].shoot((me.rect.centerx - 33, me.rect.centery), 120)
+            bullets[bullet_index + 1].shoot((me.rect.centerx - 6, me.rect.centery), 90)
+            bullets[bullet_index + 2].shoot((me.rect.centerx + 28, me.rect.centery), 60)
+            bullets[bullet_index + 3].shoot((me.rect.centerx + 20, me.rect.centery), 75)
+            bullets[bullet_index + 4].shoot((me.rect.centerx - 25, me.rect.centery), 105)
             bullet_index = (bullet_index + 5) % bullet_num
             if bullet_index >= bullet_num - 4:
                 bullet_index = 0
@@ -348,8 +348,8 @@ while True:
             each.shooting_time_index += 1
             screen.blit(animation_frame("big_enemy_{}".format(id(each)), each.images, 3), each.rect)
             if each.shooting_time_index % bullet.Bullet3.shooting_interval == 0:  # Shoot a bullet at a certain interval
-                bullet3_angle = 180*atan((me.rect.centerx - each.rect.centerx)/
-                                         (me.rect.centery - each.rect.centery))
+                bullet3_angle = (180/pi)*atan2((each.rect.centery - me.rect.centery),
+                                         (me.rect.centerx -each.rect.centerx))
                 bullets3[bullet3_index].shoot((each.rect.centerx - 10, each.rect.centery),
                                               bullet3_angle)  # Big enemy shooting bullets
                 bullet3_index = (bullet3_index + 1) % bullet3_num
@@ -368,7 +368,7 @@ while True:
             screen.blit(each.image, each.rect)
             if each.shooting_time_index % bullet.Bullet2.shooting_interval == 0:  # Shoot a bullet at a certain interval
                 bullets2[bullet2_index].shoot((each.rect.centerx - 3, each.rect.centery),
-                                              -180)  # Shooting bullets by middle enemy
+                                              -90)  # Shooting bullets by middle enemy
                 bullet2_index = (bullet2_index + 1) % bullet2_num
 
     # ================The move of the bullets from middle enemy===========-

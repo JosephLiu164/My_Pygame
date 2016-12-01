@@ -12,7 +12,7 @@ class MyPlane(pygame.sprite.Sprite):
         self.images_hit = [pygame.image.load("image/hero_hit1.png"),
                            pygame.image.load("image/hero_hit2.png")]
         self.mask = pygame.mask.from_surface(self.images[0])  # Get plane image mask to accurately detect collision
-        self.destroy_images = []  # 加载飞机损毁图片
+        self.destroy_images = []  # Load plane destroying image
         self.destroy_images.extend([pygame.image.load("image/hero_blowup_n1.png"),
                                     pygame.image.load("image/hero_blowup_n2.png"),
                                     pygame.image.load("image/hero_blowup_n3.png"),
@@ -24,7 +24,7 @@ class MyPlane(pygame.sprite.Sprite):
         self.active = True  # Whether the plane is alive or destroyed
         self.invincible = False  # The plane is invincible for 3 seconds when initialized
         self.hit = False
-        self.bullet_level = 1  #Bullet level of my plane
+        self.bullet_level = 7  #Bullet level of my plane
         self.life = 100
 
     # ====================Define the movement in four directions====================

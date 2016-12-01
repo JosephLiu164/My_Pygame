@@ -7,10 +7,13 @@ class Bullet():
     def move(self):
         if self.rect.top < 0:
             self.active = False
-        self.rect.top -= self.speed * cos((self.angle / 180) * pi)
-        self.rect.left -= self.speed * cos(((90 - self.angle) / 180) * pi)
 
-    def shoot(self, position, angle = 0):
+        self.rect.top -= self.speed * sin((self.angle*pi)/180)
+        self.rect.left += self.speed * cos((self.angle*pi)/180)
+        # self.rect.top -= self.speed * cos((self.angle / 180) * pi)
+        # self.rect.left -= self.speed * cos(((90 - self.angle) / 180) * pi)
+
+    def shoot(self, position, angle = 90):
         self.rect.left, self.rect.top = position
         self.active = True
         self.angle = angle
