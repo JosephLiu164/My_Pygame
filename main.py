@@ -26,12 +26,13 @@ bullet_sound = pygame.mixer.Sound("sound/bullet.wav")
 bullet_sound.set_volume(0.2)
 me_down_sound = pygame.mixer.Sound("sound/game_over.wav")
 me_down_sound.set_volume(0.2)
-enemy1_down_sound = pygame.mixer.Sound("sound/enemy1_down.wav")
-enemy1_down_sound.set_volume(0.2)
-enemy2_down_sound = pygame.mixer.Sound("sound/enemy2_down.wav")
-enemy2_down_sound.set_volume(0.2)
-enemy3_down_sound = pygame.mixer.Sound("sound/enemy3_down.wav")
-enemy3_down_sound.set_volume(0.2)
+SmallEnemy_destroy_sound = SmallEnemy2_destroy_sound = pygame.mixer.Sound("sound/enemy1_down.wav")
+SmallEnemy_destroy_sound.set_volume(0.2)
+SmallEnemy2_destroy_sound.set_volume(0.2)
+MidEnemy_destroy_sound = pygame.mixer.Sound("sound/enemy2_down.wav")
+MidEnemy_destroy_sound.set_volume(0.2)
+BigEnemy_destroy_sound = pygame.mixer.Sound("sound/enemy3_down.wav")
+BigEnemy_destroy_sound.set_volume(0.2)
 get_bomb_sound = pygame.mixer.Sound("sound/get_bomb.wav")
 get_bomb_sound.set_volume(0.2)
 get_bullet_sound = pygame.mixer.Sound("sound/get_double_laser.wav")
@@ -84,6 +85,7 @@ def is_finished(name):
     else:
         return False
 
+
 # ========Function for initializing enemy plane=======
 def add_small_enemies(small_enemies, enemies, num):
     for i in range(num):
@@ -105,11 +107,18 @@ def add_big_enemies(big_enemies, enemies, num):
         big_enemies.add(e)
         enemies.add(e)
 
+def add_small_enemies2(small_enemies2, enemies, num):
+    for i in range(num):
+        e = enemy.SmallEnemy2(bg_size)
+        small_enemies2.add(e)
+        enemies.add(e)
+
 def increase_speed(target, value):
     for each in target:
         each.speed += value
 
 def main():
+
     # =============Set background image==============
     background = pygame.image.load("image/background.png")  # Load background image
     gameover_image = pygame.image.load("image/game_over.png")  # game over background image
@@ -133,6 +142,8 @@ def main():
     add_mid_enemies(mid_enemies, enemies, 1)
     big_enemies = pygame.sprite.Group()  # Create big enemy plane group
     add_big_enemies(big_enemies, enemies, 1)
+    small_enemies2 = pygame.sprite.Group()  # Creating small enemy plane group
+    add_small_enemies2(small_enemies2, enemies, 1)
     supplies = pygame.sprite.Group()
 
     # ==============Initializing my plane==============
@@ -153,19 +164,19 @@ def main():
     bullet_index = 0
     bullet_num = 300  # Amount of bullet instances
     for i in range(bullet_num):
-        bullets.append(bullet.Bullet1())
+        bullets.append(bullet.MyBullet())
 
     bullets2 = [] # Generate enemy bullets of middle enemy
     bullet2_index = 0
     bullet2_num = 300
     for i in range(bullet2_num):
-        bullets2.append(bullet.Bullet2())
+        bullets2.append(bullet.EnemyBullet1())
 
     bullets3 = [] # Generate enemy bullets of big enemy
     bullet3_index = 0
     bullet3_num = 300
     for i in range(bullet3_num):
-        bullets3.append(bullet.Bullet3())
+        bullets3.append(bullet.EnemyBullet2())
 
 
     while True:
@@ -236,23 +247,23 @@ def main():
         if me.active:
             if me.bullet_level <= 3:
                 if me.bullet_level == 1:
-                    bullet.Bullet1.shooting_interval = 20
+                    bullet.MyBullet.shooting_interval = 20
                 elif me.bullet_level == 2:
-                    bullet.Bullet1.shooting_interval = 15
+                    bullet.MyBullet.shooting_interval = 15
                 elif me.bullet_level == 3:
-                    bullet.Bullet1.shooting_interval = 11
-                if me.shooting_time_index % bullet.Bullet1.shooting_interval == 0:  # Shoot a bullet at a certain interval
+                    bullet.MyBullet.shooting_interval = 11
+                if me.shooting_time_index % bullet.MyBullet.shooting_interval == 0:  # Shoot a bullet at a certain interval
                     bullet_sound.play()
                     bullets[bullet_index].shoot(me.rect.midtop)
                     bullet_index = (bullet_index + 1) % bullet_num
             elif 4 <= me.bullet_level <= 6:
                 if me.bullet_level == 4:
-                    bullet.Bullet1.shooting_interval = 17
+                    bullet.MyBullet.shooting_interval = 17
                 elif me.bullet_level == 5:
-                    bullet.Bullet1.shooting_interval = 12
+                    bullet.MyBullet.shooting_interval = 12
                 elif me.bullet_level == 6:
-                    bullet.Bullet1.shooting_interval = 8
-                if me.shooting_time_index % bullet.Bullet1.shooting_interval == 0:
+                    bullet.MyBullet.shooting_interval = 8
+                if me.shooting_time_index % bullet.MyBullet.shooting_interval == 0:
                     bullet_sound.play()
                     bullets[bullet_index].shoot((me.rect.centerx - 35, me.rect.centery))
                     bullets[bullet_index + 1].shoot((me.rect.centerx + 28, me.rect.centery))
@@ -262,12 +273,12 @@ def main():
 
             elif 7<= me.bullet_level <= 9:
                 if me.bullet_level == 7:
-                    bullet.Bullet1.shooting_interval = 9
+                    bullet.MyBullet.shooting_interval = 9
                 elif me.bullet_level == 8:
-                    bullet.Bullet1.shooting_interval = 7
+                    bullet.MyBullet.shooting_interval = 7
                 elif me.bullet_level == 9:
-                    bullet.Bullet1.shooting_interval = 4
-                if me.shooting_time_index % bullet.Bullet1.shooting_interval == 0:
+                    bullet.MyBullet.shooting_interval = 4
+                if me.shooting_time_index % bullet.MyBullet.shooting_interval == 0:
                     bullet_sound.play()
                     bullets[bullet_index].shoot((me.rect.centerx - 33, me.rect.centery),105)
                     bullets[bullet_index + 1].shoot((me.rect.centerx-6, me.rect.centery),90)
@@ -277,8 +288,8 @@ def main():
                         bullet_index = 0
 
             elif me.bullet_level == 10:
-                bullet.Bullet1.shooting_interval = 4
-                if me.shooting_time_index % bullet.Bullet1.shooting_interval == 0:
+                bullet.MyBullet.shooting_interval = 4
+                if me.shooting_time_index % bullet.MyBullet.shooting_interval == 0:
                     bullet_sound.play()
                     bullets[bullet_index].shoot((me.rect.centerx - 33, me.rect.centery), 120)
                     bullets[bullet_index + 1].shoot((me.rect.centerx - 6, me.rect.centery), 90)
@@ -340,12 +351,7 @@ def main():
             if enemies_down:  # If the list of collision detection is not empty, then collision happens.
                 for e in enemies_down:
                     if e.active:
-                        if isinstance(e, enemy.SmallEnemy):
-                            me.life -= 30
-                        elif isinstance(e, enemy.MidEnemy):
-                            me.life -= 60
-                        elif isinstance(e, enemy.BigEnemy):
-                            me.life -= 90
+                        me.life -= e.crashing_power
                         e.active = False  # Enemy plane destroyed
 
         # =====Detect whether the plane touches the supply======
@@ -367,17 +373,12 @@ def main():
                 each.move()
                 each.shooting_time_index += 1
                 screen.blit(animation_frame("big_enemy_{}".format(id(each)), each.images, 3), each.rect)
-                if each.shooting_time_index % bullet.Bullet3.shooting_interval == 0:  # Shoot a bullet at a certain interval
+                if each.shooting_time_index % bullet.EnemyBullet2.shooting_interval == 0:  # Shoot a bullet at a certain interval
                     bullet3_angle = (180/pi)*atan2((each.rect.centery - me.rect.centery),
                                              (me.rect.centerx- each.rect.centerx))
                     bullets3[bullet3_index].shoot((each.rect.centerx - 10, each.rect.centery), bullet3_angle)  # Big enemy shooting bullets
                     bullet3_index = (bullet3_index + 1) % bullet3_num
 
-        # ================The move of the bullets from big enemy===========-
-        for b in bullets3:
-            if b.active:
-                b.move()
-                screen.blit(b.image, b.rect)
 
         # =========Blit the mid enemies and have them move==========
         for each in mid_enemies:
@@ -385,21 +386,25 @@ def main():
                 each.move()
                 each.shooting_time_index += 1
                 screen.blit(each.image, each.rect)
-                if each.shooting_time_index % bullet.Bullet2.shooting_interval == 0:  # Shoot a bullet at a certain interval
+                if each.shooting_time_index % bullet.EnemyBullet1.shooting_interval == 0:  # Shoot a bullet at a certain interval
                     bullets2[bullet2_index].shoot((each.rect.centerx - 3, each.rect.centery),
                                                   -90)  # Shooting bullets by middle enemy
                     bullet2_index = (bullet2_index + 1) % bullet2_num
 
-        # ================The move of the bullets from middle enemy===========-
-        for b in bullets2:
-            if b.active:
-                b.move()
-                screen.blit(b.image, b.rect)
 
         # =========Blit the small enemies and have them move==========
         for each in small_enemies:
             if each.active:
                 each.move()
+                screen.blit(each.image, each.rect)
+
+        # =========Blit the small enemies2 and have them move==========
+        for each in small_enemies2:
+            if each.active:
+                if each.init_position_left < 0:
+                     each.move(-60)
+                else:
+                     each.move(-120)
                 screen.blit(each.image, each.rect)
 
         # =========When the big enemy is hit==============
@@ -416,36 +421,35 @@ def main():
                     screen.blit(each.image_hit, each.rect)
                     each.hit = False
 
-        # =========When big enemy plane is destroyed, create the animation===========
-        for each in big_enemies:
+        # =========When enemy is destroyed===========
+        for each in enemies:
+            destroy_sound = globals()["{}_destroy_sound".format(each.__class__.__name__)]
+            destroy_frame_len = len(each.destroy_images)
             if not each.active:
-                enemy3_down_sound.play()
-                screen.blit(animation_frame("enemy_{}".format(id(each)), each.destroy_images, 5), each.rect)
+                destroy_sound.play()
+                screen.blit(animation_frame("enemy_{}".format(id(each)),
+                                            each.destroy_images,
+                                            destroy_frame_len),
+                            each.rect)
                 if all_animation.get("enemy_{}".format(id(each))).is_finished:
-                    score += 1500
-                    each.reset()
-
-        # =========When mid enemy plane is destroyed, create the animation===========
-        for each in mid_enemies:
-            if not each.active:
-                enemy2_down_sound.play()
-                screen.blit(animation_frame("enemy_{}".format(id(each)), each.destroy_images, 3), each.rect)
-                if all_animation.get("enemy_{}".format(id(each))).is_finished:
-                    score += 700
-                    if each.supply:
+                    score += each.destroy_score
+                    if getattr(each, "supply", False):
                         each.supply.drop(((each.rect.centerx - each.supply.rect.width / 2),
                                           each.rect.centery))  # Dropping supplies when destroyed
                         supplies.add(each.supply)
                     each.reset()
 
-        # =========When small enemy plane is destroyed, create the animation===========
-        for each in small_enemies:
-            if not each.active:
-                enemy1_down_sound.play()
-                screen.blit(animation_frame("enemy_destroy_{}".format(id(each)), each.destroy_images, 3), each.rect)
-                if all_animation.get("enemy_destroy_{}".format(id(each))).is_finished:
-                    score += 100  # User score increases
-                    each.reset()
+        # ================The move of the bullets from big enemy===========-
+        for b in bullets3:
+            if b.active:
+                b.move()
+                screen.blit(b.image, b.rect)
+
+        # ================The move of the bullets from middle enemy===========-
+        for b in bullets2:
+            if b.active:
+                b.move()
+                screen.blit(b.image, b.rect)
 
         # =============The move of the supplies===============
         for each in supplies:
@@ -498,7 +502,7 @@ def main():
             if restart_button_rect.collidepoint(pygame.mouse.get_pos()):
                 restart_button = restart_button_hover
                 for event in pygame.event.get():
-                    if event.type == MOUSEBUTTONDOWN and event.button ==1:
+                    if event.type == MOUSEBUTTONDOWN:
                         game_over = False
                         pygame.mixer.music.play(-1)
                         main()
@@ -520,9 +524,4 @@ def main():
         clock.tick(frame_rate)  # Set the frame rate to 60
 
 if __name__ == '__main__':
-    try:
-        main()
-    except SystemExit:
-        pass
-    except:
-        pygame.quit()
+    main()

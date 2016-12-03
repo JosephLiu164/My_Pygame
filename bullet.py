@@ -16,8 +16,8 @@ class Bullet():
         self.active = True
         self.angle = angle
 
-
-class Bullet1(pygame.sprite.Sprite, Bullet):
+# ==============Bullet of my plane===============
+class MyBullet(pygame.sprite.Sprite, Bullet):
     shooting_interval = 20
 
     def __init__(self):
@@ -31,8 +31,8 @@ class Bullet1(pygame.sprite.Sprite, Bullet):
         self.active = False
         self.mask = pygame.mask.from_surface(self.image)
 
-
-class Bullet2(pygame.sprite.Sprite, Bullet):
+# =============enemy bullets==============
+class EnemyBullet1(pygame.sprite.Sprite, Bullet):
     shooting_interval = 100
 
     def __init__(self):
@@ -43,7 +43,8 @@ class Bullet2(pygame.sprite.Sprite, Bullet):
         self.active = False
         self.mask = pygame.mask.from_surface(self.image)
 
-class Bullet3(pygame.sprite.Sprite, Bullet):
+# =============enemy bullets================
+class EnemyBullet2(pygame.sprite.Sprite, Bullet):
     shooting_interval = 100
 
     def __init__(self):
