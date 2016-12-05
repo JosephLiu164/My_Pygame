@@ -210,7 +210,7 @@ def main():
                 me.move(movement_angle, True)
 
             # ==============Game difficulty level================
-            critical_score = 4000 * 3 ** (level-1)
+            critical_score = 3000 * 3 ** (level-1)
             if score >= critical_score:
                 level += 1
                 level_up_sound.play()
@@ -218,13 +218,13 @@ def main():
                 add_small_enemies2(small_enemies2, enemies, 2)
                 add_mid_enemies(mid_enemies, enemies, 2)
                 add_big_enemies(big_enemies, enemies, 1)
-                bullet.EnemyBullet1.shooting_interval -= bullet.EnemyBullet1.shooting_interval//4
-                bullet.EnemyBullet2.shooting_interval -= bullet.EnemyBullet2.shooting_interval//4
-                for e in enemies:
-                    e.energy += e.energy *1.3
+                for i in enemy.Enemy.__subclasses__():
+                    i.upgraded_energy *= 1.2 ** (level - 1)
+                enemy.MidEnemy.upgraded_shooting_interval = int(i.upgraded_shooting_interval*((4/5)**(level-1))+1)
+                enemy.BigEnemy.upgraded_shooting_interval = int(i.upgraded_shooting_interval*((4/5)**(level-1))+1)
 
 
-        # ============Set the background to scroll (repeatedly blit same two images)========
+        # ============Set the background to scroll (repetitively blit same two images)========
         screen.blit(background, (x, y))
         screen.blit(background, (x1, y1))
         y1 += 3
@@ -365,7 +365,7 @@ def main():
                 each.move()
                 each.shooting_time_index += 1
                 screen.blit(animation_frame("big_enemy_{}".format(id(each)), each.images, 3), each.rect)
-                if each.shooting_time_index % bullet.EnemyBullet2.shooting_interval == 0:  # Shoot a bullet at a certain interval
+                if each.shooting_time_index % each.shooting_interval == 0:  # Shoot a bullet at a certain interval
                     bullet3_angle = (180/pi)*atan2((each.rect.centery - me.rect.centery),
                                              (me.rect.centerx- each.rect.centerx))
                     enemy_bullets2[enemy_bullet2_index].shoot((each.rect.centerx - 10, each.rect.centery), bullet3_angle)  # Big enemy shooting bullets
@@ -378,7 +378,7 @@ def main():
                 each.move()
                 each.shooting_time_index += 1
                 screen.blit(each.image, each.rect)
-                if each.shooting_time_index % bullet.EnemyBullet1.shooting_interval == 0:  # Shoot a bullet at a certain interval
+                if each.shooting_time_index % each.shooting_interval == 0:  # Shoot a bullet at a certain interval
                     enemy_bullets1[enemy_bullet1_index].shoot((each.rect.centerx - 3, each.rect.centery),
                                                   -90)  # Shooting bullets by middle enemy
                     enemy_bullet1_index = (enemy_bullet1_index + 1) % enemy_bullet1_num
