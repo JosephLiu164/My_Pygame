@@ -14,9 +14,10 @@ class Enemy():
         else:
             self.reset()
 
+
 # ====================Define the small enemy plane behaviors====================
 class SmallEnemy(pygame.sprite.Sprite, Enemy):  # Inheriting from Sprite class
-    small_enemy_energy = 1
+    energy = 1
 
     def __init__(self, bg_size):
         pygame.sprite.Sprite.__init__(self)
@@ -35,8 +36,8 @@ class SmallEnemy(pygame.sprite.Sprite, Enemy):  # Inheriting from Sprite class
         # Define the initializing position
         # ensuring that the enemy plane won't appear in the very beginning
 
-        self.energy = self.small_enemy_energy
-        self.crashing_power = 30
+        self.energy = SmallEnemy.energy
+        self.crashing_power = 30 # The damage cause to my plane when it is hit by my plane directly
         self.destroy_score = 100
         self.hit = False
         self.active = True  # Set the attribute indicating whether the plane is alive.
@@ -47,10 +48,11 @@ class SmallEnemy(pygame.sprite.Sprite, Enemy):  # Inheriting from Sprite class
                                          randint(-800, 0))  # The spot where the plane appears
         self.active = True  # Reset the alive status. The same for the rest.
         self.hit = False
-        self.energy = SmallEnemy.small_enemy_energy
+        self.energy = SmallEnemy.energy
+
 
 class SmallEnemy2(pygame.sprite.Sprite, Enemy):
-    small_enemy2_energy = 2
+    energy = 1
 
     def position(self):
         horizontal_distance = randint(400, 800)
@@ -76,7 +78,7 @@ class SmallEnemy2(pygame.sprite.Sprite, Enemy):
         # Define the initializing position
         # ensuring that the enemy plane won't appear in the very beginning
 
-        self.energy = self.small_enemy2_energy
+        self.energy = SmallEnemy2.energy
         self.crashing_power = 45
         self.destroy_score = 200
         self.hit = False
@@ -88,13 +90,12 @@ class SmallEnemy2(pygame.sprite.Sprite, Enemy):
             self.init_position_left, self.init_position_top = self.position()
         self.active = True  # Reset the alive status. The same for the rest.
         self.hit = False
-        self.energy = SmallEnemy2.small_enemy2_energy
-
+        self.energy = SmallEnemy2.energy
 
 
 # ====================Define the mid enemy behaviors====================
 class MidEnemy(pygame.sprite.Sprite, Enemy):
-    mid_enemy_energy = 5
+    energy = 5
     shooting_time_index = 0
 
     def __init__(self, bg_size):
@@ -112,7 +113,7 @@ class MidEnemy(pygame.sprite.Sprite, Enemy):
         self.speed = 2  # Slower than the small size enemy
         self.rect.left, self.rect.top = (randint(0, self.bg_width - self.rect.width),
                                          randint(-1400, -600))  # The spot where the plane appears
-        self.energy = self.mid_enemy_energy
+        self.energy = MidEnemy.energy
         self.supply = self.generate_supply()
         self.bullet = bullet.EnemyBullet1
         self.crashing_power = 60
@@ -126,18 +127,21 @@ class MidEnemy(pygame.sprite.Sprite, Enemy):
 
         self.active = True
         self.hit = False
-        self.energy = MidEnemy.mid_enemy_energy
+        self.energy = MidEnemy.energy
 
     def generate_supply(self):  # middle enemy has several bullet supplies when generated
         random_supply = randint(0, 100)
         if 0 <= random_supply <= 50:
             return None
-        elif 51 <= random_supply <= 100:
+        elif 51 <= random_supply <= 75:
             return supply.BulletSupply()
+        elif 76<= random_supply:
+            return supply.LifeSupply()
+
 
 # ====================Define the big enemy behaviors====================
 class BigEnemy(pygame.sprite.Sprite, Enemy):
-    big_enemy_energy = 10
+    energy = 10
     shooting_time_index = 0
 
     def __init__(self, bg_size):
@@ -157,7 +161,7 @@ class BigEnemy(pygame.sprite.Sprite, Enemy):
         self.rect = self.images[0].get_rect()
         self.bg_width, self.bg_height = bg_size[0], bg_size[1]
         self.speed = 2
-        self.energy = self.big_enemy_energy
+        self.energy = BigEnemy.energy
         self.rect.left, self.rect.top = (randint(0, self.bg_width - self.rect.width),
                                          randint(-1600, -1200))  # The spot where the plane appears
         # To ensure that the enemy plane won't appear from the very beginning
@@ -171,15 +175,15 @@ class BigEnemy(pygame.sprite.Sprite, Enemy):
 
     def generate_supply(self):  # Big enemy has several supplies when generated
         random_supply = randint(0, 100)
-        if 0 <= random_supply <= 60:
-            return None
-        elif 61 <= random_supply <= 100:
+        if 0 <= random_supply <= 66:
             return supply.BulletSupply()
+        elif 67<= random_supply:
+            return supply.LifeSupply()
 
     def reset(self):  # When moving down out of the screen
         self.rect.left, self.rect.top = (randint(0, self.bg_width - self.rect.width),
                                          randint(-1600, -1200))  # The spot where the plane appears
         self.active = True
         self.hit = False
-        self.energy = BigEnemy.big_enemy_energy
+        self.energy = BigEnemy.energy
         self.generate_supply()

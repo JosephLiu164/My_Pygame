@@ -149,7 +149,6 @@ def main():
 
     # ==============Initializing my plane==============
     me = myplane.MyPlane(bg_size)
-    switch_image = False
 
     # ===============user score=================
     score = 0
@@ -211,7 +210,7 @@ def main():
                 me.move(movement_angle, True)
 
             # ==============Game difficulty level================
-            critical_score = 3000 * 3 ** (level-1)
+            critical_score = 4000 * 3 ** (level-1)
             if score >= critical_score:
                 level += 1
                 level_up_sound.play()
@@ -221,6 +220,9 @@ def main():
                 add_big_enemies(big_enemies, enemies, 1)
                 bullet.EnemyBullet1.shooting_interval -= bullet.EnemyBullet1.shooting_interval//4
                 bullet.EnemyBullet2.shooting_interval -= bullet.EnemyBullet2.shooting_interval//4
+                for e in enemies:
+                    e.energy += e.energy *1.3
+
 
         # ============Set the background to scroll (repeatedly blit same two images)========
         screen.blit(background, (x, y))
@@ -315,7 +317,7 @@ def main():
                     for e in enemies_hit:
                         e.energy -= 1
                         e.hit = True  # Plane is hit
-                        if e.energy == 0:
+                        if e.energy <= 0:
                             e.active = False
 
         # =========Detect whether my plane touches enemy_bullets1===========
@@ -344,10 +346,16 @@ def main():
             for s in supplies_got:
                 if s.show:
                     get_bomb_sound.play()
+
+                    # ================Bullet Supply==============
                     if isinstance(s, supply.BulletSupply):
                         me.bullet_level += 1
                         if me.bullet_level >= 10:
                             me.bullet_level = 10
+                    elif isinstance(s, supply.LifeSupply):
+                        me.life += 30
+                        if me.life >= 100:
+                            me.life = 100
                     s.show = False
 
 
