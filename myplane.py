@@ -26,7 +26,7 @@ class MyPlane(pygame.sprite.Sprite):
         self.active = True  # Whether the plane is alive or destroyed
         self.invincible = False  # The plane is invincible for 3 seconds when initialized
         self.hit = False
-        self.bullet_level = 1  #Bullet level of my plane
+        self.bullet_level = 10  #Bullet level of my plane
         self.life = 100
 
     # ====================Define the movement of my plane====================
@@ -51,6 +51,15 @@ class MyPlane(pygame.sprite.Sprite):
                                         (self.bg_height - self.rect.height - 30)
         self.active = True
         self.life = 100
+
+class Shield(pygame.sprite.Sprite):
+    def __init__(self, plane_center):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load("image/shield.png")
+        self.mask = pygame.mask.from_surface(self.image)
+        self.rect = self.image.get_rect()
+        self.rect.center = plane_center
+
 
 
 

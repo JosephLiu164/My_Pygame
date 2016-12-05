@@ -35,8 +35,11 @@ class LifeSupply(pygame.sprite.Sprite, Supply):
         self.image = pygame.image.load("image/life.png")
         Supply.__init__(self)
 
-# class Invincible(pygame.sprite.Sprite, Supply):
-
+class Shield(pygame.sprite.Sprite, Supply):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load("image/shield_supply.png")
+        Supply.__init__(self)
 
 
 

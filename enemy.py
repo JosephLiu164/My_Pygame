@@ -137,12 +137,15 @@ class MidEnemy(pygame.sprite.Sprite, Enemy):
 
     def generate_supply(self):  # middle enemy has several bullet supplies when generated
         random_supply = randint(0, 100)
-        if 0 <= random_supply <= 50:
+        if 0 <= random_supply <= 33:
             return None
-        elif 51 <= random_supply <= 75:
+        elif 34 <= random_supply <= 56:
             return supply.BulletSupply()
-        elif 76<= random_supply:
+        elif 57<= random_supply<= 79:
             return supply.LifeSupply()
+        elif 80 <= random_supply:
+            return supply.Shield()
+
 
 
 # ====================Define the big enemy behaviors====================
@@ -186,10 +189,12 @@ class BigEnemy(pygame.sprite.Sprite, Enemy):
 
     def generate_supply(self):  # Big enemy has several supplies when generated
         random_supply = randint(0, 100)
-        if 0 <= random_supply <= 66:
+        if 0 <= random_supply <= 50:
             return supply.BulletSupply()
-        elif 67<= random_supply:
+        elif 51<= random_supply <= 75:
             return supply.LifeSupply()
+        elif 76 <= random_supply:
+            return supply.Shield()
 
     def reset(self):  # When moving down out of the screen
         self.rect.left, self.rect.top = (randint(0, self.bg_width - self.rect.width),

@@ -40,13 +40,12 @@ get_bullet_sound.set_volume(0.2)
 level_up_sound = pygame.mixer.Sound("sound/achievement.wav")
 level_up_sound.set_volume(0.2)
 
-
 # ===============Colors in common use =================
 WHITE = (255, 255, 255)
-BLACK = (0,0,0)
-RED = (181,75,0)
-GREEN = (0,181,24)
-YELLOW = (181,175,0)
+BLACK = (0, 0, 0)
+RED = (181, 75, 0)
+GREEN = (0, 181, 24)
+YELLOW = (181, 175, 0)
 
 # =================A general animation class and function==================
 all_animation = {}
@@ -61,6 +60,7 @@ class Animation():
         self.name = name
         self.images = images
         self.interval = interval
+
 
 # Usage: screen.blit(animation_frame("destroy_me",me.destroy_images,5),me.rect)
 def animation_frame(name, images, interval):
@@ -107,19 +107,21 @@ def add_big_enemies(big_enemies, enemies, num):
         big_enemies.add(e)
         enemies.add(e)
 
+
 def add_small_enemies2(small_enemies2, enemies, num):
     for i in range(num):
         e = enemy.SmallEnemy2(bg_size)
         small_enemies2.add(e)
         enemies.add(e)
 
+
 def increase_speed(plane):
     for each in plane:
         if each.bullet:
-            each.bullet.shooting_interval -= each.bullet.shooting_interval//3
+            each.bullet.shooting_interval -= each.bullet.shooting_interval // 3
+
 
 def main():
-
     # =============Set background image==============
     background = pygame.image.load("image/background.png")  # Load background image
     gameover_image = pygame.image.load("image/game_over.png")  # game over background image
@@ -128,7 +130,7 @@ def main():
     restart_button_normal = pygame.image.load("image/restart.png")
     restart_button_hover = pygame.image.load("image/restart_hover.png")
     restart_button_rect = restart_button_normal.get_rect()
-    restart_button_rect.left, restart_button_rect.top = (170,500)
+    restart_button_rect.left, restart_button_rect.top = (170, 500)
 
     x = 0  # Set the initial background position
     y = 0
@@ -161,15 +163,15 @@ def main():
 
     # ===============Create all the bullets=================
     enemy_bullets = pygame.sprite.Group()
-    
-    my_bullets = [] # Generate my bullets
+
+    my_bullets = []  # Generate my bullets
     my_bullet_index = 0
     my_bullet_num = 300  # Amount of bullet instances
     for i in range(my_bullet_num):
         b = bullet.MyBullet()
         my_bullets.append(b)
 
-    enemy_bullets1 = [] # Generate enemy bullets of middle enemy
+    enemy_bullets1 = []  # Generate enemy bullets of middle enemy
     enemy_bullet1_index = 0
     enemy_bullet1_num = 300
     for i in range(enemy_bullet1_num):
@@ -177,7 +179,7 @@ def main():
         enemy_bullets1.append(b)
         enemy_bullets.add(b)
 
-    enemy_bullets2 = [] # Generate enemy bullets of big enemy
+    enemy_bullets2 = []  # Generate enemy bullets of big enemy
     enemy_bullet2_index = 0
     enemy_bullet3_num = 300
     for i in range(enemy_bullet3_num):
@@ -203,14 +205,14 @@ def main():
                 control_plane_x = -1
             if key_pressed[K_d] or key_pressed[K_RIGHT]:
                 control_plane_x = 1
-            movement_angle = atan2(control_plane_y,control_plane_x)
+            movement_angle = atan2(control_plane_y, control_plane_x)
             if control_plane_x == 0 and control_plane_y == 0:
                 me.move(movement_angle, False)
             else:
                 me.move(movement_angle, True)
 
             # ==============Game difficulty level================
-            critical_score = 3000 * 3 ** (level-1)
+            critical_score = 3000 * 3 ** (level - 1)
             if score >= critical_score:
                 level += 1
                 level_up_sound.play()
@@ -220,9 +222,10 @@ def main():
                 add_big_enemies(big_enemies, enemies, 1)
                 for i in enemy.Enemy.__subclasses__():
                     i.upgraded_energy *= 1.2 ** (level - 1)
-                enemy.MidEnemy.upgraded_shooting_interval = int(i.upgraded_shooting_interval*((4/5)**(level-1))+1)
-                enemy.BigEnemy.upgraded_shooting_interval = int(i.upgraded_shooting_interval*((4/5)**(level-1))+1)
-
+                enemy.MidEnemy.upgraded_shooting_interval = int(
+                    i.upgraded_shooting_interval * ((4 / 5) ** (level - 1)) + 1)
+                enemy.BigEnemy.upgraded_shooting_interval = int(
+                    i.upgraded_shooting_interval * ((4 / 5) ** (level - 1)) + 1)
 
         # ============Set the background to scroll (repetitively blit same two images)========
         screen.blit(background, (x, y))
@@ -235,7 +238,7 @@ def main():
             y1 = -HEIGHT
 
         # =========Shooting bullets according to different bullet levels of my plane==========
-        me.shooting_time_index += 1 # Shooting time index of my plane increase by 1 in every frame
+        me.shooting_time_index += 1  # Shooting time index of my plane increase by 1 in every frame
 
         if me.active:
             if me.bullet_level <= 3:
@@ -261,10 +264,10 @@ def main():
                     my_bullets[my_bullet_index].shoot((me.rect.centerx - 28, me.rect.centery))
                     my_bullets[my_bullet_index + 1].shoot((me.rect.centerx + 23, me.rect.centery))
                     my_bullet_index = (my_bullet_index + 2) % my_bullet_num
-                    if my_bullet_index >= my_bullet_num-1:
+                    if my_bullet_index >= my_bullet_num - 1:
                         my_bullet_index = 0
 
-            elif 7<= me.bullet_level <= 9:
+            elif 7 <= me.bullet_level <= 9:
                 if me.bullet_level == 7:
                     bullet.MyBullet.shooting_interval = 9
                 elif me.bullet_level == 8:
@@ -273,9 +276,9 @@ def main():
                     bullet.MyBullet.shooting_interval = 4
                 if me.shooting_time_index % bullet.MyBullet.shooting_interval == 0:
                     bullet_sound.play()
-                    my_bullets[my_bullet_index].shoot((me.rect.centerx - 28, me.rect.centery),105)
-                    my_bullets[my_bullet_index + 1].shoot((me.rect.centerx-4, me.rect.centery),90)
-                    my_bullets[my_bullet_index + 2].shoot((me.rect.centerx + 23, me.rect.centery),75)
+                    my_bullets[my_bullet_index].shoot((me.rect.centerx - 28, me.rect.centery), 105)
+                    my_bullets[my_bullet_index + 1].shoot((me.rect.centerx - 4, me.rect.centery), 90)
+                    my_bullets[my_bullet_index + 2].shoot((me.rect.centerx + 23, me.rect.centery), 75)
                     my_bullet_index = (my_bullet_index + 3) % my_bullet_num
                     if my_bullet_index >= my_bullet_num - 2:
                         my_bullet_index = 0
@@ -320,25 +323,6 @@ def main():
                         if e.energy <= 0:
                             e.active = False
 
-        # =========Detect whether my plane touches enemy_bullets1===========
-        if me.active:
-            bullets_hit = pygame.sprite.spritecollide(me, enemy_bullets, False,
-                                                       pygame.sprite.collide_mask)
-            for b in bullets_hit:
-                if b.active:
-                    me.hit = True
-                    me.life -= b.power
-                    b.active = False
-
-
-        # =====Detect whether there is a collision between my plane and enemy planes======
-        if me.active:
-            enemies_down = pygame.sprite.spritecollide(me, enemies, False, pygame.sprite.collide_mask)
-            if enemies_down:  # If the list of collision detection is not empty, then collision happens.
-                for e in enemies_down:
-                    if e.active:
-                        me.life -= e.crashing_power
-                        e.active = False  # Enemy plane destroyed
 
         # =====Detect whether the plane touches the supply======
         if me.active:
@@ -356,8 +340,53 @@ def main():
                         me.life += 30
                         if me.life >= 100:
                             me.life = 100
+                    elif isinstance(s, supply.Shield):
+                        me.invincible = True
+                        invincible_count_down = frame_rate * 10
+                        shield = myplane.Shield(me.rect.center)
                     s.show = False
 
+        # ============The movement of the shield===========
+        if me.invincible:
+            shield.rect.center = me.rect.center
+
+        #============Invincible time counting down============
+        if me.invincible:
+            invincible_count_down -= 1
+            if invincible_count_down == 0:
+                me.invincible = False
+
+        # =====Detect whether there is a collision between the shield and enemy planes and bullets======
+        if me.invincible:
+            enemies_hit_by_shield = pygame.sprite.spritecollide(shield, enemies, False, pygame.sprite.collide_mask)
+            bullets_on_shield = pygame.sprite.spritecollide(shield, enemy_bullets, False,
+                                                      pygame.sprite.collide_mask)
+            if enemies_hit_by_shield:
+                for e in enemies_hit_by_shield:
+                    if e.active:
+                        e.active = False
+            if bullets_on_shield:
+                for b in bullets_on_shield:
+                    b.active = False
+
+        # =====Detect whether there is a collision between my plane and enemy planes======
+        if me.active:
+            enemies_down = pygame.sprite.spritecollide(me, enemies, False, pygame.sprite.collide_mask)
+            if enemies_down:  # If the list of collision detection is not empty, then collision happens.
+                for e in enemies_down:
+                    if e.active:
+                        me.life -= e.crashing_power
+                        e.active = False  # Enemy plane destroyed
+
+        # =========Detect whether my plane touches enemy_bullets===========
+        if me.active:
+            bullets_hit = pygame.sprite.spritecollide(me, enemy_bullets, False,
+                                                      pygame.sprite.collide_mask)
+            for b in bullets_hit:
+                if b.active:
+                    me.hit = True
+                    me.life -= b.power
+                    b.active = False
 
         # =========Blit the big enemies and have them move==========
         for each in big_enemies:
@@ -366,11 +395,11 @@ def main():
                 each.shooting_time_index += 1
                 screen.blit(animation_frame("big_enemy_{}".format(id(each)), each.images, 3), each.rect)
                 if each.shooting_time_index % each.shooting_interval == 0:  # Shoot a bullet at a certain interval
-                    bullet3_angle = (180/pi)*atan2((each.rect.centery - me.rect.centery),
-                                             (me.rect.centerx- each.rect.centerx))
-                    enemy_bullets2[enemy_bullet2_index].shoot((each.rect.centerx - 10, each.rect.centery), bullet3_angle)  # Big enemy shooting bullets
+                    bullet3_angle = (180 / pi) * atan2((each.rect.centery - me.rect.centery),
+                                                       (me.rect.centerx - each.rect.centerx))
+                    enemy_bullets2[enemy_bullet2_index].shoot((each.rect.centerx - 10, each.rect.centery),
+                                                              bullet3_angle)  # Big enemy shooting bullets
                     enemy_bullet2_index = (enemy_bullet2_index + 1) % enemy_bullet3_num
-
 
         # =========Blit the mid enemies and have them move==========
         for each in mid_enemies:
@@ -380,9 +409,8 @@ def main():
                 screen.blit(each.image, each.rect)
                 if each.shooting_time_index % each.shooting_interval == 0:  # Shoot a bullet at a certain interval
                     enemy_bullets1[enemy_bullet1_index].shoot((each.rect.centerx - 3, each.rect.centery),
-                                                  -90)  # Shooting bullets by middle enemy
+                                                              -90)  # Shooting bullets by middle enemy
                     enemy_bullet1_index = (enemy_bullet1_index + 1) % enemy_bullet1_num
-
 
         # =========Blit the small enemies and have them move==========
         for each in small_enemies:
@@ -394,9 +422,9 @@ def main():
         for each in small_enemies2:
             if each.active:
                 if each.init_position_left < 0:
-                     each.move(-60)
+                    each.move(-60)
                 else:
-                     each.move(-120)
+                    each.move(-120)
                 screen.blit(each.image, each.rect)
 
         # =========When the big enemy is hit==============
@@ -460,20 +488,33 @@ def main():
                 if all_animation.get("me_hit").is_finished:
                     me.hit = False
 
+
         # =============Display the user score====================
         score_text = score_font.render("Score: {}".format(str(score)), True, BLACK)
         screen.blit(score_text, (10, 40))
 
         # =============Draw the remaining blood of my plane================
-        pygame.draw.line(screen, (75,75,75), (10,20),(200,20), 30)
-        if me.life/100 > 0.3:
+        pygame.draw.line(screen, (75, 75, 75), (10, 20), (200, 20), 30)
+        if me.life / 100 > 0.3:
             energy_color = GREEN
-        elif 0.15<= me.life/100 <= 0.3:
+        elif 0.15 <= me.life / 100 <= 0.3:
             energy_color = YELLOW
-        elif 0 <= me.life/100 < 0.15:
+        elif 0 <= me.life / 100 < 0.15:
             energy_color = RED
-        pygame.draw.line(screen, energy_color, (10,20), ((me.life/100)*190+11,20), 30)
-        blood_bar = Rect(10, 20, 190, 20)
+        pygame.draw.line(screen, energy_color, (10, 20), ((me.life / 100) * 190 + 11, 20), 30)
+
+        # ===============If my plane is invincible, blit the shield and life bar===============
+        if me.invincible:
+            screen.blit(shield.image, shield.rect)
+            pygame.draw.line(screen, (217,255,200), (10, 20), ((me.life / 100) * 190 + 11, 20), 30)
+            invincible_text = score_font.render("INVINCIBLE", True, (0,155,0))
+
+            # ============The blink of the shield within the last 3 seconds========
+            if invincible_count_down<= frame_rate * 2:
+                if invincible_count_down % 3:
+                    invincible_text = score_font.render("", True, (0,155,0))
+            screen.blit(invincible_text, (40, 7))
+
 
         # =============Detect whether my plane is destroyed==============
         if game_over == False:
@@ -489,7 +530,7 @@ def main():
                 game_over = True
 
         # =============When game over==============
-        if game_over: # Detect the restart button
+        if game_over:  # Detect the restart button
             restart_button = restart_button_normal
             if restart_button_rect.collidepoint(pygame.mouse.get_pos()):
                 restart_button = restart_button_hover
@@ -499,14 +540,14 @@ def main():
                         pygame.mixer.music.play(-1)
                         main()
 
-            with open("high_score.txt", "r") as f: # Load the high score data from txt file
+            with open("high_score.txt", "r") as f:  # Load the high score data from txt file
                 high_score = int(f.read())
             if score > high_score:  # If player's scoring is higher, then save it
                 with open("high_score.txt", "w") as f:
                     f.write(str(score))
             player_score_text = game_over_player_score_font.render("{}".format(score), True, WHITE)
             high_score_text = high_score_font.render("{}".format(high_score), True, WHITE)
-            screen.blit(gameover_image, gameover_rect) # Show game over screen
+            screen.blit(gameover_image, gameover_rect)  # Show game over screen
             screen.blit(player_score_text, (230, 210))
             screen.blit(high_score_text, (230, 390))
             screen.blit(restart_button, restart_button_rect)
@@ -514,6 +555,7 @@ def main():
 
         pygame.display.flip()
         clock.tick(frame_rate)  # Set the frame rate to 60
+
 
 if __name__ == '__main__':
     try:
