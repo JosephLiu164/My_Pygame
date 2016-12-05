@@ -1,6 +1,7 @@
 # Import relevant modules
 import pygame
 import supply
+import bullet
 from math import *
 from random import *
 
@@ -52,7 +53,7 @@ class SmallEnemy2(pygame.sprite.Sprite, Enemy):
     small_enemy2_energy = 2
 
     def position(self):
-        horizontal_distance = randint(0, 400)
+        horizontal_distance = randint(400, 800)
         vertical_distance = horizontal_distance * tan(pi/3)
         horizontal_position = choice([-horizontal_distance, self.bg_width+horizontal_distance])
         vertical_position = -vertical_distance + randint(-100,300)
@@ -113,6 +114,7 @@ class MidEnemy(pygame.sprite.Sprite, Enemy):
                                          randint(-1400, -600))  # The spot where the plane appears
         self.energy = self.mid_enemy_energy
         self.supply = self.generate_supply()
+        self.bullet = bullet.EnemyBullet1
         self.crashing_power = 60
         self.destroy_score = 700
         self.active = True
@@ -162,15 +164,16 @@ class BigEnemy(pygame.sprite.Sprite, Enemy):
 
         self.active = True
         self.hit = False
+        self.bullet = bullet.EnemyBullet2
         self.supply = self.generate_supply()
         self.crashing_power = 90
         self.destroy_score = 1500
 
     def generate_supply(self):  # Big enemy has several supplies when generated
         random_supply = randint(0, 100)
-        if 0 <= random_supply <= 70:
+        if 0 <= random_supply <= 60:
             return None
-        elif 71 <= random_supply <= 100:
+        elif 61 <= random_supply <= 100:
             return supply.BulletSupply()
 
     def reset(self):  # When moving down out of the screen
@@ -179,4 +182,4 @@ class BigEnemy(pygame.sprite.Sprite, Enemy):
         self.active = True
         self.hit = False
         self.energy = BigEnemy.big_enemy_energy
-        # self.supply()
+        self.generate_supply()

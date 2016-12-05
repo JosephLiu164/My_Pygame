@@ -1,5 +1,5 @@
 import pygame
-import pyganim
+import traceback
 import myplane
 import enemy
 import supply
@@ -113,9 +113,10 @@ def add_small_enemies2(small_enemies2, enemies, num):
         small_enemies2.add(e)
         enemies.add(e)
 
-def increase_speed(target, value):
-    for each in target:
-        each.speed += value
+def increase_speed(plane):
+    for each in plane:
+        if each.bullet:
+            each.bullet.shooting_interval -= each.bullet.shooting_interval//3
 
 def main():
 
@@ -160,31 +161,35 @@ def main():
     level = 1
 
     # ===============Create all the bullets=================
-    bullets = [] # Generate my bullets
-    bullet_index = 0
-    bullet_num = 300  # Amount of bullet instances
-    for i in range(bullet_num):
-        bullets.append(bullet.MyBullet())
+    enemy_bullets = pygame.sprite.Group()
+    
+    my_bullets = [] # Generate my bullets
+    my_bullet_index = 0
+    my_bullet_num = 300  # Amount of bullet instances
+    for i in range(my_bullet_num):
+        b = bullet.MyBullet()
+        my_bullets.append(b)
 
-    bullets2 = [] # Generate enemy bullets of middle enemy
-    bullet2_index = 0
-    bullet2_num = 300
-    for i in range(bullet2_num):
-        bullets2.append(bullet.EnemyBullet1())
+    enemy_bullets1 = [] # Generate enemy bullets of middle enemy
+    enemy_bullet1_index = 0
+    enemy_bullet1_num = 300
+    for i in range(enemy_bullet1_num):
+        b = bullet.EnemyBullet1()
+        enemy_bullets1.append(b)
+        enemy_bullets.add(b)
 
-    bullets3 = [] # Generate enemy bullets of big enemy
-    bullet3_index = 0
-    bullet3_num = 300
-    for i in range(bullet3_num):
-        bullets3.append(bullet.EnemyBullet2())
-
+    enemy_bullets2 = [] # Generate enemy bullets of big enemy
+    enemy_bullet2_index = 0
+    enemy_bullet3_num = 300
+    for i in range(enemy_bullet3_num):
+        b = bullet.EnemyBullet2()
+        enemy_bullets2.append(b)
+        enemy_bullets.add(b)
 
     while True:
         for event in pygame.event.get():
             if event.type == QUIT:
                 exit()
-
-        me.shooting_time_index += 1 # Shooting time index of my plane increase by 1 in every frame
 
         # =================Control the plane=================
         control_plane_x = 0
@@ -205,33 +210,17 @@ def main():
             else:
                 me.move(movement_angle, True)
 
-                # ==============Game difficulty level================
-            if level == 1 and score > 3000:
-                # If reaching level 2, add 3 small enemies, 2 middle enemies and 1 big enemies.
-                # Increase the speed of small enemy.
-                level = 2
+            # ==============Game difficulty level================
+            critical_score = 3000 * 3 ** (level-1)
+            if score >= critical_score:
+                level += 1
                 level_up_sound.play()
                 add_small_enemies(small_enemies, enemies, 3)
+                add_small_enemies2(small_enemies2, enemies, 2)
                 add_mid_enemies(mid_enemies, enemies, 2)
                 add_big_enemies(big_enemies, enemies, 1)
-                increase_speed(small_enemies, 1)
-            elif level == 2 and score > 12000:  # Reaching level 3
-                level = 3
-                level_up_sound.play()
-                add_small_enemies(small_enemies, enemies, 3)
-                add_mid_enemies(mid_enemies, enemies, 2)
-                add_big_enemies(big_enemies, enemies, 1)
-                increase_speed(small_enemies, 1)
-                increase_speed(mid_enemies, 1)
-            elif level == 3 and score > 60000:  # Reacin level 4
-                level = 4
-                level_up_sound.play()
-                add_small_enemies(small_enemies, enemies, 3)
-                add_mid_enemies(mid_enemies, enemies, 2)
-                add_big_enemies(big_enemies, enemies, 1)
-                increase_speed(small_enemies, 1)
-                increase_speed(mid_enemies, 1)
-                increase_speed(big_enemies, 1)
+                bullet.EnemyBullet1.shooting_interval -= bullet.EnemyBullet1.shooting_interval//4
+                bullet.EnemyBullet2.shooting_interval -= bullet.EnemyBullet2.shooting_interval//4
 
         # ============Set the background to scroll (repeatedly blit same two images)========
         screen.blit(background, (x, y))
@@ -244,6 +233,8 @@ def main():
             y1 = -HEIGHT
 
         # =========Shooting bullets according to different bullet levels of my plane==========
+        me.shooting_time_index += 1 # Shooting time index of my plane increase by 1 in every frame
+
         if me.active:
             if me.bullet_level <= 3:
                 if me.bullet_level == 1:
@@ -254,8 +245,8 @@ def main():
                     bullet.MyBullet.shooting_interval = 11
                 if me.shooting_time_index % bullet.MyBullet.shooting_interval == 0:  # Shoot a bullet at a certain interval
                     bullet_sound.play()
-                    bullets[bullet_index].shoot(me.rect.midtop)
-                    bullet_index = (bullet_index + 1) % bullet_num
+                    my_bullets[my_bullet_index].shoot(me.rect.midtop)
+                    my_bullet_index = (my_bullet_index + 1) % my_bullet_num
             elif 4 <= me.bullet_level <= 6:
                 if me.bullet_level == 4:
                     bullet.MyBullet.shooting_interval = 17
@@ -265,11 +256,11 @@ def main():
                     bullet.MyBullet.shooting_interval = 8
                 if me.shooting_time_index % bullet.MyBullet.shooting_interval == 0:
                     bullet_sound.play()
-                    bullets[bullet_index].shoot((me.rect.centerx - 35, me.rect.centery))
-                    bullets[bullet_index + 1].shoot((me.rect.centerx + 28, me.rect.centery))
-                    bullet_index = (bullet_index + 2) % bullet_num
-                    if bullet_index >= bullet_num-1:
-                        bullet_index = 0
+                    my_bullets[my_bullet_index].shoot((me.rect.centerx - 28, me.rect.centery))
+                    my_bullets[my_bullet_index + 1].shoot((me.rect.centerx + 23, me.rect.centery))
+                    my_bullet_index = (my_bullet_index + 2) % my_bullet_num
+                    if my_bullet_index >= my_bullet_num-1:
+                        my_bullet_index = 0
 
             elif 7<= me.bullet_level <= 9:
                 if me.bullet_level == 7:
@@ -280,29 +271,29 @@ def main():
                     bullet.MyBullet.shooting_interval = 4
                 if me.shooting_time_index % bullet.MyBullet.shooting_interval == 0:
                     bullet_sound.play()
-                    bullets[bullet_index].shoot((me.rect.centerx - 33, me.rect.centery),105)
-                    bullets[bullet_index + 1].shoot((me.rect.centerx-6, me.rect.centery),90)
-                    bullets[bullet_index + 2].shoot((me.rect.centerx + 28, me.rect.centery),75)
-                    bullet_index = (bullet_index + 3) % bullet_num
-                    if bullet_index >= bullet_num - 2:
-                        bullet_index = 0
+                    my_bullets[my_bullet_index].shoot((me.rect.centerx - 28, me.rect.centery),105)
+                    my_bullets[my_bullet_index + 1].shoot((me.rect.centerx-4, me.rect.centery),90)
+                    my_bullets[my_bullet_index + 2].shoot((me.rect.centerx + 23, me.rect.centery),75)
+                    my_bullet_index = (my_bullet_index + 3) % my_bullet_num
+                    if my_bullet_index >= my_bullet_num - 2:
+                        my_bullet_index = 0
 
             elif me.bullet_level == 10:
                 bullet.MyBullet.shooting_interval = 4
                 if me.shooting_time_index % bullet.MyBullet.shooting_interval == 0:
                     bullet_sound.play()
-                    bullets[bullet_index].shoot((me.rect.centerx - 33, me.rect.centery), 120)
-                    bullets[bullet_index + 1].shoot((me.rect.centerx - 6, me.rect.centery), 90)
-                    bullets[bullet_index + 2].shoot((me.rect.centerx + 28, me.rect.centery), 60)
-                    bullets[bullet_index + 3].shoot((me.rect.centerx + 20, me.rect.centery), 75)
-                    bullets[bullet_index + 4].shoot((me.rect.centerx - 25, me.rect.centery), 105)
-                    bullet_index = (bullet_index + 5) % bullet_num
-                    if bullet_index >= bullet_num - 4:
-                        bullet_index = 0
+                    my_bullets[my_bullet_index].shoot((me.rect.centerx - 25, me.rect.centery), 120)
+                    my_bullets[my_bullet_index + 1].shoot((me.rect.centerx - 4, me.rect.centery), 90)
+                    my_bullets[my_bullet_index + 2].shoot((me.rect.centerx + 17, me.rect.centery), 60)
+                    my_bullets[my_bullet_index + 3].shoot((me.rect.centerx + 14, me.rect.centery), 75)
+                    my_bullets[my_bullet_index + 4].shoot((me.rect.centerx - 22, me.rect.centery), 105)
+                    my_bullet_index = (my_bullet_index + 5) % my_bullet_num
+                    if my_bullet_index >= my_bullet_num - 4:
+                        my_bullet_index = 0
 
-        # ================The move of the bullets===========
+        # ================The move of my bullets===========
         if me.active:
-            for b in bullets:
+            for b in my_bullets:
                 if b.active:
                     if me.bullet_level == 1 or me.bullet_level == 4 or me.bullet_level == 7:
                         b.move()
@@ -316,7 +307,7 @@ def main():
                     screen.blit(bullet_image, b.rect)
 
         # ================Collision between the bullets and enemy planes============
-        for b in bullets:
+        for b in my_bullets:
             if b.active:
                 enemies_hit = pygame.sprite.spritecollide(b, enemies, False, pygame.sprite.collide_mask)
                 if enemies_hit:
@@ -327,23 +318,16 @@ def main():
                         if e.energy == 0:
                             e.active = False
 
-        # =========Detect whether my plane touches bullets2===========
+        # =========Detect whether my plane touches enemy_bullets1===========
         if me.active:
-            bullets2_hit = pygame.sprite.spritecollide(me, bullets2, False, pygame.sprite.collide_mask)
-            for b in bullets2_hit:
+            bullets_hit = pygame.sprite.spritecollide(me, enemy_bullets, False,
+                                                       pygame.sprite.collide_mask)
+            for b in bullets_hit:
                 if b.active:
                     me.hit = True
-                    me.life -= 10
+                    me.life -= b.power
                     b.active = False
 
-        # =========Detect whether my plane touches bullets3===========
-        if me.active:
-            bullets3_hit = pygame.sprite.spritecollide(me, bullets3, False, pygame.sprite.collide_mask)
-            for b in bullets3_hit:
-                if b.active:
-                    me.hit = True
-                    me.life -= 30
-                    b.active = False
 
         # =====Detect whether there is a collision between my plane and enemy planes======
         if me.active:
@@ -376,8 +360,8 @@ def main():
                 if each.shooting_time_index % bullet.EnemyBullet2.shooting_interval == 0:  # Shoot a bullet at a certain interval
                     bullet3_angle = (180/pi)*atan2((each.rect.centery - me.rect.centery),
                                              (me.rect.centerx- each.rect.centerx))
-                    bullets3[bullet3_index].shoot((each.rect.centerx - 10, each.rect.centery), bullet3_angle)  # Big enemy shooting bullets
-                    bullet3_index = (bullet3_index + 1) % bullet3_num
+                    enemy_bullets2[enemy_bullet2_index].shoot((each.rect.centerx - 10, each.rect.centery), bullet3_angle)  # Big enemy shooting bullets
+                    enemy_bullet2_index = (enemy_bullet2_index + 1) % enemy_bullet3_num
 
 
         # =========Blit the mid enemies and have them move==========
@@ -387,9 +371,9 @@ def main():
                 each.shooting_time_index += 1
                 screen.blit(each.image, each.rect)
                 if each.shooting_time_index % bullet.EnemyBullet1.shooting_interval == 0:  # Shoot a bullet at a certain interval
-                    bullets2[bullet2_index].shoot((each.rect.centerx - 3, each.rect.centery),
+                    enemy_bullets1[enemy_bullet1_index].shoot((each.rect.centerx - 3, each.rect.centery),
                                                   -90)  # Shooting bullets by middle enemy
-                    bullet2_index = (bullet2_index + 1) % bullet2_num
+                    enemy_bullet1_index = (enemy_bullet1_index + 1) % enemy_bullet1_num
 
 
         # =========Blit the small enemies and have them move==========
@@ -440,13 +424,13 @@ def main():
                     each.reset()
 
         # ================The move of the bullets from big enemy===========-
-        for b in bullets3:
+        for b in enemy_bullets2:
             if b.active:
                 b.move()
                 screen.blit(b.image, b.rect)
 
         # ================The move of the bullets from middle enemy===========-
-        for b in bullets2:
+        for b in enemy_bullets1:
             if b.active:
                 b.move()
                 screen.blit(b.image, b.rect)
@@ -524,4 +508,8 @@ def main():
         clock.tick(frame_rate)  # Set the frame rate to 60
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except:
+        traceback.print_exc()
+        pygame.quit()

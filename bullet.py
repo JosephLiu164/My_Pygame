@@ -40,6 +40,7 @@ class EnemyBullet1(pygame.sprite.Sprite, Bullet):
         self.image = pygame.image.load("image/bullet2.png")
         self.rect = self.image.get_rect()
         self.speed = 5
+        self.power = 10
         self.active = False
         self.mask = pygame.mask.from_surface(self.image)
 
@@ -52,6 +53,7 @@ class EnemyBullet2(pygame.sprite.Sprite, Bullet):
         self.image = pygame.image.load("image/bullet3.png")
         self.rect = self.image.get_rect()
         self.speed = 5
+        self.power = 30
         self.active = False
         self.mask = pygame.mask.from_surface(self.image)
 
