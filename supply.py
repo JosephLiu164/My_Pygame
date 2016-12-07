@@ -1,10 +1,13 @@
 import pygame
+from random import *
+
 
 # ====================Define the bullet upgrading supply====================
-
-class Supply():
+class BulletSupply(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
+
+        self.image = pygame.image.load("image/ufo1.png")
         self.rect = self.image.get_rect()
         self.speed = 5
         self.show = False
@@ -19,27 +22,6 @@ class Supply():
             self.rect.top += self.speed
         else:
             self.show = False
-
-class BulletSupply(pygame.sprite.Sprite, Supply):
-    def __init__(self):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load("image/ufo1.png")
-        Supply.__init__(self)
-
-
-
-
-class LifeSupply(pygame.sprite.Sprite, Supply):
-    def __init__(self):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load("image/life.png")
-        Supply.__init__(self)
-
-class Shield(pygame.sprite.Sprite, Supply):
-    def __init__(self):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load("image/shield_supply.png")
-        Supply.__init__(self)
 
 
 
