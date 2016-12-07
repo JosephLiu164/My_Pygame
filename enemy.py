@@ -204,3 +204,79 @@ class BigEnemy(pygame.sprite.Sprite, Enemy):
         self.energy = BigEnemy.upgraded_energy
         self.shooting_interval = BigEnemy.upgraded_shooting_interval
         self.generate_supply()
+
+
+class SpEnemy(pygame.sprite.Sprite, Enemy):
+    sp_enemy_energy = 20
+    shooting_time_index = 0
+    initial_energy = 10
+    upgraded_energy = 10
+
+    def __init__(self, bg_size):
+        pygame.sprite.Sprite.__init__(self)
+
+        self.image = pygame.image.load("image/sp_enemy.png")  # Load the images of the sp enemy plane
+        self.image_hit = pygame.image.load("image/sp_blowup_n2.png")  # Load the image when hit
+        self.mask = pygame.mask.from_surface(self.image)
+        self.destroy_images = []  # Load images when destroyed
+        self.destroy_images.extend([pygame.image.load("image/sp_blowup_n1.png"),
+                                    pygame.image.load("image/sp_blowup_n2.png"),
+                                    pygame.image.load("image/sp_blowup_n3.png")])
+        self.rect = self.image.get_rect()
+        self.bg_width, self.bg_height = bg_size[0], bg_size[1]
+        self.speed = 5
+        self.energy = self.initial_energy
+        self.rect.left, self.rect.top = ((self.bg_width - self.rect.width) // 2,
+                                         -200)  # The spot where the plane appears
+        # To ensure that the enemy plane won't appear from the very beginning
+
+        self.active = True
+        self.hit = False
+        self.supply = self.generate_supply()
+        self.crashing_power = 50
+        self.destroy_score = 2000
+
+    def sp_move(self, timell):  # special movement
+        time = (timell - 70) % 800
+        if timell < 70:  # ((self.bg_height//2)//self.speed)
+            self.rect.top += self.speed
+        elif time >= 40 and time < 90:
+            self.rect.left += self.speed
+        elif time >= 90 and time < 190:
+            self.rect.left -= self.speed
+        elif time >= 190 and time < 220:
+            self.rect.top -= self.speed
+        elif time >= 220 and time < 320:
+            self.rect.left += self.speed
+        elif time >= 320 and time < 350:
+            self.rect.top += self.speed
+        elif time >= 350 and time < 400:
+            self.rect.left -= self.speed
+        elif time >= 440 and time < 490:
+            self.rect.left -= self.speed
+        elif time >= 490 and time < 590:
+            self.rect.left += self.speed
+        elif time >= 590 and time < 620:
+            self.rect.top -= self.speed
+        elif time >= 620 and time < 720:
+            self.rect.left -= self.speed
+        elif time >= 720 and time < 750:
+            self.rect.top += self.speed
+        elif time >= 750 and time < 800:
+            self.rect.left += self.speed
+
+    def generate_supply(self):  # Special enemy has several supplies when generated
+        random_supply = randint(0, 100)
+        if 0 <= random_supply <= 50:
+            return supply.BulletSupply()
+        elif 51 <= random_supply <= 75:
+            return supply.LifeSupply()
+        elif 76 <= random_supply:
+            return supply.Shield()
+
+    def reset(self):  # When moving down out of the screen
+        self.rect.left, self.rect.top = ((self.bg_width - self.rect.width) // 2,
+                                         -200)  # The spot where the plane appears
+        self.active = False
+        self.hit = False
+        self.energy = SpEnemy.upgraded_energy

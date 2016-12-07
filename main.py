@@ -114,6 +114,11 @@ def add_small_enemies2(small_enemies2, enemies, num):
         small_enemies2.add(e)
         enemies.add(e)
 
+def add_sp_enemies(sp_enemies, enemies, num):
+    for i in range(num):
+        e = enemy.SpEnemy(bg_size)
+        sp_enemies.add(e)
+        enemies.add(e)
 
 def increase_speed(plane):
     for each in plane:
@@ -147,6 +152,10 @@ def main():
     add_big_enemies(big_enemies, enemies, 1)
     small_enemies2 = pygame.sprite.Group()  # Creating small enemy plane group
     add_small_enemies2(small_enemies2, enemies, 1)
+    sp_enemies = pygame.sprite.Group()  # Creating special enemy plane group
+    add_sp_enemies(sp_enemies, enemies, 0)  # No special enemy at very begaining
+    bosses = 0
+
     supplies = pygame.sprite.Group()
 
     # ==============Initializing my plane==============
@@ -181,11 +190,17 @@ def main():
 
     enemy_bullets2 = []  # Generate enemy bullets of big enemy
     enemy_bullet2_index = 0
-    enemy_bullet3_num = 300
-    for i in range(enemy_bullet3_num):
+    enemy_bullet2_num = 300
+    for i in range(enemy_bullet2_num):
         b = bullet.EnemyBullet2()
         enemy_bullets2.append(b)
         enemy_bullets.add(b)
+
+    bullets4 = []  # Generate enemy bullets of laser
+    bullet4_index = 0
+    bullet4_num = 200
+    for i in range(bullet4_num):
+        bullets4.append(bullet.Laser())
 
     while True:
         for event in pygame.event.get():
@@ -378,7 +393,7 @@ def main():
                         me.life -= e.crashing_power
                         e.active = False  # Enemy plane destroyed
 
-        # =========Detect whether my plane touches enemy_bullets===========
+        # =========Detect whether my plane touches enemy bullets===========
         if me.active:
             bullets_hit = pygame.sprite.spritecollide(me, enemy_bullets, False,
                                                       pygame.sprite.collide_mask)
@@ -399,7 +414,7 @@ def main():
                                                        (me.rect.centerx - each.rect.centerx))
                     enemy_bullets2[enemy_bullet2_index].shoot((each.rect.centerx - 10, each.rect.centery),
                                                               bullet3_angle)  # Big enemy shooting bullets
-                    enemy_bullet2_index = (enemy_bullet2_index + 1) % enemy_bullet3_num
+                    enemy_bullet2_index = (enemy_bullet2_index + 1) % enemy_bullet2_num
 
         # =========Blit the mid enemies and have them move==========
         for each in mid_enemies:
@@ -436,6 +451,13 @@ def main():
 
         # =========When the middle enemy is hit==============
         for each in mid_enemies:
+            if each.active:
+                if each.hit:
+                    screen.blit(each.image_hit, each.rect)
+                    each.hit = False
+
+        # =========When the special enemy is hit==============
+        for each in sp_enemies:
             if each.active:
                 if each.hit:
                     screen.blit(each.image_hit, each.rect)

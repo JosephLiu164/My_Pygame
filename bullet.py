@@ -56,5 +56,29 @@ class EnemyBullet2(pygame.sprite.Sprite, Bullet):
         self.mask = pygame.mask.from_surface(self.image)
 
 
+# =============enemy laser bullets================
+class Laser(pygame.sprite.Sprite, Bullet):
+    shooting_interval = 1
+
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load("image/laser.png")
+        self.rect = self.image.get_rect()
+        self.speed = 5
+        self.power = 1
+        self.active = False
+        self.mask = pygame.mask.from_surface(self.image)
+
+    def movesp(self, time):
+
+        if (time - 70) % 800 >= 90 and (time - 70) % 800 < 190:
+            self.rect.left -= self.speed
+            if self.rect.left < 50:
+                self.active = False
+
+        elif (time - 70) % 800 >= 490 and (time - 70) % 800 < 590:
+            self.rect.left += self.speed
+            if self.rect.left > 520:
+                self.active = False
 
 
