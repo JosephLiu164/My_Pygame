@@ -8,6 +8,7 @@ import bullet
 from pygame.locals import *
 from math import *
 from sys import exit
+from random import *
 
 # =========================Game initialization==========================
 pygame.init()
@@ -116,11 +117,11 @@ def add_small_enemies2(small_enemies2, enemies, num):
         small_enemies2.add(e)
         enemies.add(e)
 
-def add_sp_enemies(sp_enemies, enemies, num):
-    for i in range(num):
-        e = enemy.SpEnemy(bg_size)
-        sp_enemies.add(e)
-        enemies.add(e)
+def add_bosses(bosses, enemies, level):
+    b=enemy.SpEnemy(bg_size, level)
+    bosses.add(b)
+    enemies.add(b)
+
 
 def increase_speed(plane):
     for each in plane:
@@ -154,7 +155,7 @@ def main():
     add_big_enemies(big_enemies, enemies, 1)
     small_enemies2 = pygame.sprite.Group()  # Creating small enemy plane group
     add_small_enemies2(small_enemies2, enemies, 1)
-    sp_enemies = pygame.sprite.Group()  # Creating special enemy plane group
+    bosses = pygame.sprite.Group()
     supplies = pygame.sprite.Group()
 
     # ==============Initializing my plane==============
@@ -168,6 +169,9 @@ def main():
 
     # =========== current game difficulty level ===========
     level = 1
+
+    # ===========Variables relevant to boss============
+    new_enemies = False
 
     # ===============Create all the bullets=================
     enemy_bullets = pygame.sprite.Group()
@@ -203,11 +207,20 @@ def main():
         enemy_bullets3.append(b)
         enemy_bullets.add(b)
 
-    bullets4 = []  # Generate enemy bullets of laser
-    bullet4_index = 0
-    bullet4_num = 200
-    for i in range(bullet4_num):
-        bullets4.append(bullet.Laser())
+    enemy_bullets4 = []  # Generate bullets4
+    enemy_bullet4_index = 0
+    enemy_bullet4_num = 300
+    for i in range(enemy_bullet4_num):
+        b = bullet.EnemyBullet4()
+        enemy_bullets4.append(b)
+        enemy_bullets.add(b)
+
+    lasers = []
+    laser_index = []
+    lasers_num = 5
+    for i in range(lasers_num):
+        l = bullet.Laser()
+        lasers.append(l)
 
     while True:
         for event in pygame.event.get():
@@ -233,22 +246,21 @@ def main():
             else:
                 me.move(movement_angle, True)
 
-            # ==============Game difficulty level================
+        # ==============Game difficulty level================
+        if me.active:
             critical_score = 3000 * 3 ** (level - 1)
             if score >= critical_score:
                 level += 1
                 level_up_sound.play()
-                add_small_enemies(small_enemies, enemies, 3)
-                add_small_enemies2(small_enemies2, enemies, 2)
-                add_mid_enemies(mid_enemies, enemies, 2)
-                add_big_enemies(big_enemies, enemies, 1)
-                add_sp_enemies(sp_enemies, enemies, 1)
-                for i in enemy.Enemy.__subclasses__():
-                    i.upgraded_energy *= 1.2 ** (level - 1)
-                enemy.MidEnemy.upgraded_shooting_interval = int(
-                    i.upgraded_shooting_interval * ((4 / 5) ** (level - 1)) + 1)
-                enemy.BigEnemy.upgraded_shooting_interval = int(
-                    i.upgraded_shooting_interval * ((4 / 5) ** (level - 1)) + 1)
+                add_bosses(bosses,enemies,level) # Initialize the boss
+
+
+        # =============Detect whether there is a boss alive===========
+        for b in bosses:
+            boss_time = False
+            if b.active:
+                boss_time = True # If it is the boss time, other enemies will stop appearing
+
 
         # ============Set the background to scroll (repetitively blit same two images)========
         screen.blit(background, (x, y))
@@ -334,17 +346,15 @@ def main():
                         bullet_image = b.image3
                     screen.blit(bullet_image, b.rect)
 
-        # ================Collision between the bullets and enemy planes============
+        # ================Collision between my bullets and enemy planes============
         for b in my_bullets:
             if b.active:
                 enemies_hit = pygame.sprite.spritecollide(b, enemies, False, pygame.sprite.collide_mask)
-                if enemies_hit:
-                    b.active = False
-                    for e in enemies_hit:
+                for e in enemies_hit:
+                    if not e.destroyed:
+                        b.active = False
                         e.energy -= 1
                         e.hit = True  # Plane is hit
-                        if e.energy <= 0:
-                            e.active = False
 
 
         # =====Detect whether the plane touches the supply======
@@ -386,8 +396,8 @@ def main():
                                                       pygame.sprite.collide_mask)
             if enemies_hit_by_shield:
                 for e in enemies_hit_by_shield:
-                    if e.active:
-                        e.active = False
+                    if e.destroyed==False and isinstance(e, enemy.SpEnemy) == False:
+                        e.destroyed = True
             if bullets_on_shield:
                 for b in bullets_on_shield:
                     b.active = False
@@ -397,9 +407,9 @@ def main():
             enemies_down = pygame.sprite.spritecollide(me, enemies, False, pygame.sprite.collide_mask)
             if enemies_down:  # If the list of collision detection is not empty, then collision happens.
                 for e in enemies_down:
-                    if e.active:
+                    if not e.destroyed:
                         me.life -= e.crashing_power
-                        e.active = False  # Enemy plane destroyed
+                        e.destroyed = True  # Enemy plane destroyed
 
         # =========Detect whether my plane touches enemy bullets===========
         if me.active:
@@ -413,20 +423,20 @@ def main():
 
         # =========Blit the big enemies and have them move==========
         for each in big_enemies:
-            if each.active:
+            if not each.destroyed:
                 each.move()
                 each.shooting_time_index += 1
                 screen.blit(animation_frame("big_enemy_{}".format(id(each)), each.images, 3), each.rect)
                 if each.shooting_time_index % each.shooting_interval == 0:  # Shoot a bullet at a certain interval
-                    bullet3_angle = (180 / pi) * atan2((each.rect.centery - me.rect.centery),
+                    bullet2_angle = (180 / pi) * atan2((each.rect.centery - me.rect.centery),
                                                        (me.rect.centerx - each.rect.centerx))
                     enemy_bullets2[enemy_bullet2_index].shoot((each.rect.centerx - 10, each.rect.centery),
-                                                              bullet3_angle)  # Big enemy shooting bullets
+                                                              bullet2_angle)  # Big enemy shooting bullets
                     enemy_bullet2_index = (enemy_bullet2_index + 1) % enemy_bullet2_num
 
         # =========Blit the mid enemies and have them move==========
         for each in mid_enemies:
-            if each.active:
+            if not each.destroyed:
                 each.move()
                 each.shooting_time_index += 1
                 screen.blit(each.image, each.rect)
@@ -435,67 +445,80 @@ def main():
                                                               -90)  # Shooting bullets by middle enemy
                     enemy_bullet1_index = (enemy_bullet1_index + 1) % enemy_bullet1_num
 
-        # =========Blit the special enemies and have them move==========
-        for each in sp_enemies:
-            if each.active:
-                each.sp_move(each.shooting_time_index)
-                each.shooting_time_index += 1
-                screen.blit(each.image, each.rect)
-                timesp = (each.shooting_time_index - 70) % 400
-                if timesp < 40:
-                    if timesp % (each.shooting_interval // 10) == 0:  # Shoot a bullet at a certain interval
-                        bullet3_angle = (180 / pi) * atan2((each.rect.centery - me.rect.centery),
-                                                           (me.rect.centerx - each.rect.centerx))
-                        enemy_bullets3[enemy_bullet3_index].shoot((each.rect.centerx - 10, each.rect.centery),
+        # =========Blit the boss and have it move==========
+        for boss in bosses:
+            if boss.active:
+                if boss.movement ==1:
+                    boss.move()
+                    if boss.rect.top == 200:
+                        boss.movement = 2
+                if boss.movement ==2:
+                    boss.direction_change_period -=1
+                    if boss.direction_change_period == 0:
+                        boss.direction_change_period = randint(20, 60)
+                        boss.angle = randint(0,360)
+                    boss.move(angle=boss.angle)
+                screen.blit(boss.image, boss.rect)
+
+        # =============The boss's switching between weapons===============
+        for boss in bosses:
+            if boss.active:
+                boss.shooting_time_index += 1
+                if boss.shooting_time_index < boss.each_weapon_duration:
+                    current_weapon = 1
+                elif boss.each_weapon_duration < boss.shooting_time_index < 2 * boss.each_weapon_duration:
+                    current_weapon = 2
+                elif 2 * boss.each_weapon_duration < boss.shooting_time_index < 3 *boss.each_weapon_duration:
+                    current_weapon = 3
+                elif boss.shooting_time_index > 3*boss.each_weapon_duration:
+                    boss.shooting_time_index = 0
+
+        # ==========The bullets from the boss=========
+        for boss in bosses:
+            if boss.active:
+                # ============The first kind of bullet============
+                if current_weapon == 1:
+                    if boss.shooting_time_index % boss.shooting_interval1 == 0:
+                        bullet3_angle = (180/pi)*atan2((boss.rect.centery - me.rect.centery),
+                                                       (me.rect.centerx- boss.rect.centerx))
+                        enemy_bullets3[enemy_bullet3_index].shoot((boss.rect.centerx, boss.rect.centery),
                                                                   bullet3_angle)  # Big enemy shooting bullets
                         enemy_bullet3_index = (enemy_bullet3_index + 1) % enemy_bullet3_num
-                elif timesp >= 90 and timesp < 190:
-                    if timesp == 90:
-                        bullets4[bullet4_index].shoot((each.rect.centerx - 13, each.rect.centery + 55), -90)
-                        bullet4_index = (bullet4_index + 1) % bullet4_num
-                elif timesp >= 220 and timesp < 320:
-                    if timesp % (each.shooting_interval // 5) == 0:
-                        enemy_bullets3[enemy_bullet3_index].shoot((each.rect.centerx - 10, each.rect.centery), -36)
-                        enemy_bullets3[enemy_bullet3_index + 1].shoot((each.rect.centerx - 10, each.rect.centery), -72)
-                        enemy_bullets3[enemy_bullet3_index + 2].shoot((each.rect.centerx - 10, each.rect.centery), -108)
-                        enemy_bullets3[enemy_bullet3_index + 3].shoot((each.rect.centerx - 10, each.rect.centery), -144)
-                        enemy_bullet3_index = (enemy_bullet3_index + 4) % enemy_bullet3_num
 
-                # timesp=(each.shooting_time_index-70)%400
-                # if timesp<40:
-                #     if timesp % (each.shooting_interval//10)== 0: # Shoot a bullet at a certain interval
-                #         bullet3_angle = (180/pi)*atan2((each.rect.centery - me.rect.centery),
-                #                              (me.rect.centerx- each.rect.centerx))
-                #         enemy_bullets3[enemy_bullet3_index].shoot((each.rect.centerx - 10, each.rect.centery), bullet3_angle)  # Big enemy shooting bullets
-                #         enemy_bullet3_index = (enemy_bullet3_index + 1) % enemy_bullet3_num
-                # elif timesp>=90 and timesp<190:
-                #     if timesp==90:
-                #         bullets4[bullet4_index].shoot((each.rect.centerx - 13, each.rect.centery+55),-90)
-                #         bullet4_index = (bullet4_index + 1) % bullet4_num
-                # elif timesp>=220 and timesp<320:
-                #     if timesp % (each.shooting_interval//5)== 0:
-                #         enemy_bullets3[enemy_bullet3_index].shoot((each.rect.centerx - 10, each.rect.centery), -36)
-                #         enemy_bullets3[enemy_bullet3_index+1].shoot((each.rect.centerx - 10, each.rect.centery), -72)
-                #         enemy_bullets3[enemy_bullet3_index+2].shoot((each.rect.centerx - 10, each.rect.centery), -108)
-                #         enemy_bullets3[enemy_bullet3_index+3].shoot((each.rect.centerx - 10, each.rect.centery), -144)
-                #         enemy_bullet3_index = (enemy_bullet3_index + 4) % enemy_bullet3_num
+                #==============The second kind of bullet============
+                if 1.5 * boss.each_weapon_duration - boss.laser_duration/2 <=0:
+                    boss.laser_duration = int(2.8 * boss.each_weapon_duration)
+                if boss.shooting_time_index == 1.5 * boss.each_weapon_duration - boss.laser_duration/2:
+                    boss.laser_active = True
+                if boss.shooting_time_index == 1.5 * boss.each_weapon_duration + boss.laser_duration/2:
+                    boss.laser_active = False
 
-                # ================The move of the laser from special enemy===========-
-                for b in bullets4:
-                    if b.active:
-                        b.movesp(each.shooting_time_index, each)
-                        screen.blit(b.image, b.rect)
+                # ============The third kind of bullet=============
+                if current_weapon ==3:
+                    if boss.shooting_time_index % boss.shooting_interval2 == 0:
+                        enemy_bullets4[enemy_bullet4_index].shoot((boss.rect.centerx, boss.rect.centery), -36)
+                        enemy_bullets4[enemy_bullet4_index+1].shoot((boss.rect.centerx, boss.rect.centery), -72)
+                        enemy_bullets4[enemy_bullet4_index+2].shoot((boss.rect.centerx, boss.rect.centery), -108)
+                        enemy_bullets4[enemy_bullet4_index+3].shoot((boss.rect.centerx, boss.rect.centery), -144)
+                        enemy_bullet4_index = (enemy_bullet4_index + 4) % enemy_bullet4_num
+                        if enemy_bullet4_index >= enemy_bullet4_num - 4:
+                            enemy_bullet4_index = 0
+
+                # ============Blid the laser============
+                for l in lasers:
+                    l.move(boss)
+                    screen.blit(l.image, l.rect)
 
 
         # =========Blit the small enemies and have them move==========
         for each in small_enemies:
-            if each.active:
+            if not each.destroyed:
                 each.move()
                 screen.blit(each.image, each.rect)
 
         # =========Blit the small enemies2 and have them move==========
         for each in small_enemies2:
-            if each.active:
+            if not each.destroyed:
                 if each.init_position_left < 0:
                     each.move(-60)
                 else:
@@ -504,54 +527,86 @@ def main():
 
         # =========When the big enemy is hit==============
         for each in big_enemies:
-            if each.active:
+            if not each.destroyed:
                 if each.hit:
                     screen.blit(each.image_hit, each.rect)
                     each.hit = False
 
         # =========When the middle enemy is hit==============
         for each in mid_enemies:
-            if each.active:
+            if not each.destroyed:
                 if each.hit:
                     screen.blit(each.image_hit, each.rect)
                     each.hit = False
 
         # =========When the special enemy is hit==============
-        for each in sp_enemies:
-            if each.active:
-                if each.hit:
-                    screen.blit(each.image_hit, each.rect)
-                    each.hit = False
+        for boss in bosses:
+            if not boss.destroyed:
+                if boss.hit:
+                    screen.blit(boss.image_hit, boss.rect)
+                    boss.hit = False
+
+        # ==============The judgement of the destroy of an enemy plane==========
+        for e in enemies:
+            if not e.destroyed:
+                if e.energy <= 0:
+                    e.destroyed = True
+
+        # =========== When boss is destroyed ============
+        for boss in bosses:
+            if boss.destroyed and boss.active:
+                SpEnemy_destroy_sound.play()
+                screen.blit(animation_frame("boss_{}".format(id(boss)),
+                                            each.destroy_images,
+                                            5),boss.rect)
+                if all_animation.get("boss_{}".format(id(boss))).is_finished:
+                    score += boss.destroy_score
+                    boss.active = False
+                    new_enemies = True
+
+        # ============== Add new enemies if boss is destroyed=========
+        if new_enemies:
+            add_small_enemies(small_enemies, enemies, 3)
+            add_small_enemies2(small_enemies2, enemies, 2)
+            add_mid_enemies(mid_enemies, enemies, 2)
+            add_big_enemies(big_enemies, enemies, 1)
+            for i in enemy.Enemy.__subclasses__():
+                i.upgraded_energy *= 1.2 ** (level - 1)
+            enemy.MidEnemy.upgraded_shooting_interval = int(
+                i.upgraded_shooting_interval * ((4 / 5) ** (level - 1)) + 1)
+            enemy.BigEnemy.upgraded_shooting_interval = int(
+                i.upgraded_shooting_interval * ((4 / 5) ** (level - 1)) + 1)
+            new_enemies = False
+
 
         # =========When enemy is destroyed===========
         for each in enemies:
             destroy_sound = globals()["{}_destroy_sound".format(each.__class__.__name__)]
             destroy_frame_len = len(each.destroy_images)
-            if not each.active:
-                destroy_sound.play()
-                screen.blit(animation_frame("enemy_{}".format(id(each)),
-                                            each.destroy_images,
-                                            destroy_frame_len),
-                            each.rect)
-                if all_animation.get("enemy_{}".format(id(each))).is_finished:
-                    score += each.destroy_score
-                    if getattr(each, "supply", False):
-                        each.supply.drop(((each.rect.centerx - each.supply.rect.width / 2),
-                                          each.rect.centery))  # Dropping supplies when destroyed
-                        supplies.add(each.supply)
-                    each.reset()
+            if each.active and not isinstance(each, enemy.SpEnemy):
+                if each.destroyed:
+                    destroy_sound.play()
+                    screen.blit(animation_frame("enemy_{}".format(id(each)),
+                                                each.destroy_images,
+                                                destroy_frame_len),
+                                each.rect)
 
-        # ================The move of the bullets from big enemy===========-
-        for b in enemy_bullets2:
+                    if all_animation.get("enemy_{}".format(id(each))).is_finished:
+                        score += each.destroy_score
+                        each.active = False
+                        if getattr(each, "supply", False):
+                            each.supply.drop(((each.rect.centerx - each.supply.rect.width / 2),
+                                              each.rect.centery))  # Dropping supplies when destroyed
+                            supplies.add(each.supply)
+                        each.reset()
+
+
+        # ================The move of the enemy bullets===========-
+        for b in enemy_bullets:
             if b.active:
                 b.move()
                 screen.blit(b.image, b.rect)
 
-        # ================The move of the bullets from middle enemy===========-
-        for b in enemy_bullets1:
-            if b.active:
-                b.move()
-                screen.blit(b.image, b.rect)
 
         # =============The move of the supplies===============
         for each in supplies:
@@ -571,7 +626,7 @@ def main():
                     me.hit = False
 
         # =============Display the user score====================
-        score_text = score_font.render("Score: {}".format(str(score)), True, BLACK)
+        score_text = score_font.render("Score: {}".format(str(score)), True, WHITE)
         screen.blit(score_text, (10, 40))
 
         # =============Draw the remaining blood of my plane================

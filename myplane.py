@@ -26,7 +26,7 @@ class MyPlane(pygame.sprite.Sprite):
         self.active = True  # Whether the plane is alive or destroyed
         self.invincible = False  # The plane is invincible for 3 seconds when initialized
         self.hit = False
-        self.bullet_level = 10  #Bullet level of my plane
+        self.bullet_level = 1  #Bullet level of my plane
         self.life = 100
 
     # ====================Define the movement of my plane====================

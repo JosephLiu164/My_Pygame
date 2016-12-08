@@ -7,7 +7,9 @@ from random import *
 
 # =============Define the common behavior of the enemy=============
 class Enemy():
-    def move(self,angle = -90):
+    destroyed = False
+
+    def move(self, angle = -90):
         if self.rect.top < self.bg_height:
             self.rect.top -= self.speed * sin((angle * pi) / 180)
             self.rect.left += self.speed * cos((angle * pi) / 180)
@@ -46,8 +48,10 @@ class SmallEnemy(pygame.sprite.Sprite, Enemy):  # Inheriting from Sprite class
     def reset(self):  # When the enemy planes move downwards out of the screen
         self.rect.left, self.rect.top = (randint(0, self.bg_width - self.rect.width),
                                          randint(-800, 0))  # The spot where the plane appears
+
         self.active = True  # Reset the alive status. The same for the rest.
         self.hit = False
+        self.destroyed = False
         self.energy = SmallEnemy.upgraded_energy
 
 
@@ -89,9 +93,11 @@ class SmallEnemy2(pygame.sprite.Sprite, Enemy):
     def reset(self):  # When the enemy planes move downwards out of the screen
         self.rect.left, self.rect.top = \
             self.init_position_left, self.init_position_top = self.position()
-        self.active = True  # Reset the alive status. The same for the rest.
+        self.active = True
+        # Reset the alive status. The same for the rest.
         self.hit = False
         self.energy = SmallEnemy.upgraded_energy
+        self.destroyed = False
 
 
 # ====================Define the mid enemy behaviors====================
@@ -129,11 +135,11 @@ class MidEnemy(pygame.sprite.Sprite, Enemy):
     def reset(self):
         self.rect.left, self.rect.top = (randint(0, self.bg_width - self.rect.width),
                                          randint(-1400, -600))  # The spot where the plane appears
-
         self.active = True
         self.hit = False
         self.energy = MidEnemy.upgraded_energy
         self.shooting_interval = MidEnemy.upgraded_shooting_interval
+        self.destroyed = False
 
     def generate_supply(self):  # middle enemy has several bullet supplies when generated
         random_supply = randint(0, 100)
@@ -199,21 +205,17 @@ class BigEnemy(pygame.sprite.Sprite, Enemy):
     def reset(self):  # When moving down out of the screen
         self.rect.left, self.rect.top = (randint(0, self.bg_width - self.rect.width),
                                          randint(-1600, -1200))  # The spot where the plane appears
-        self.active = True
         self.hit = False
+        self.active = True
         self.energy = BigEnemy.upgraded_energy
+        self.destroyed = False
         self.shooting_interval = BigEnemy.upgraded_shooting_interval
         self.generate_supply()
 
 
-class SpEnemy(pygame.sprite.Sprite, Enemy):
-    shooting_time_index = 0
-    initial_energy = 10
-    upgraded_energy = 10
-    initial_shooting_interval = 100
-    upgraded_shooting_interval = 100
+class SpEnemy(pygame.sprite.Sprite):
 
-    def __init__(self, bg_size):
+    def __init__(self, bg_size, level):
         pygame.sprite.Sprite.__init__(self)
 
         self.image = pygame.image.load("image/sp_enemy.png")  # Load the images of the sp enemy plane
@@ -226,46 +228,42 @@ class SpEnemy(pygame.sprite.Sprite, Enemy):
         self.rect = self.image.get_rect()
         self.bg_width, self.bg_height = bg_size[0], bg_size[1]
         self.speed = 5
-        self.energy = self.initial_energy
-        self.shooting_interval = SpEnemy.initial_shooting_interval
+        self.energy = 10*1.5**level
+        self.shooting_interval1 = int(30 * ((3 / 4) ** (level - 2)) + 1)
+        self.shooting_interval2 = int(60 * ((3 / 4) ** (level - 2)) + 1)
+        self.each_weapon_duration = 200
+        self.laser_duration = int(40 * ((4 / 3) ** (level - 2)))
+        self.laser_active = False
+        self.shooting_time_index = 0
+        self.direction_change_period = 10
+        self.movement = 1
+        self.angle = -90
         self.rect.left, self.rect.top = ((self.bg_width - self.rect.width) // 2,
-                                         -200)  # The spot where the plane appears
+                                         -100)  # The spot where the plane appears
         # To ensure that the enemy plane won't appear from the very beginning
 
         self.active = True
+        self.destroyed = False
         self.hit = False
         self.supply = self.generate_supply()
-        self.crashing_power = 50
-        self.destroy_score = 2000
+        self.crashing_power = 101
+        self.destroy_score = int(3000 * ((4 / 3) ** (level - 2)))
 
-    def sp_move(self, timell):  # special movement
-        time = (timell - 70) % 800
-        if timell < 70:  # ((self.bg_height//2)//self.speed)
-            self.rect.top += self.speed
-        elif time >= 40 and time < 90:
-            self.rect.left += self.speed
-        elif time >= 90 and time < 190:
-            self.rect.left -= self.speed
-        elif time >= 190 and time < 220:
-            self.rect.top -= self.speed
-        elif time >= 220 and time < 320:
-            self.rect.left += self.speed
-        elif time >= 320 and time < 350:
-            self.rect.top += self.speed
-        elif time >= 350 and time < 400:
-            self.rect.left -= self.speed
-        elif time >= 440 and time < 490:
-            self.rect.left -= self.speed
-        elif time >= 490 and time < 590:
-            self.rect.left += self.speed
-        elif time >= 590 and time < 620:
-            self.rect.top -= self.speed
-        elif time >= 620 and time < 720:
-            self.rect.left -= self.speed
-        elif time >= 720 and time < 750:
-            self.rect.top += self.speed
-        elif time >= 750 and time < 800:
-            self.rect.left += self.speed
+
+    def move(self, angle=-90, moving=True):
+        if self.rect.top < 0:  # If my plane were to move out of the screen, adjust the position
+            self.rect.top = 0
+        if self.rect.bottom > 500:
+            self.rect.bottom = 500
+        if self.rect.left <  50:
+            self.rect.left = 50
+        if self.rect.right > self.bg_width - 50:
+            self.rect.right = self.bg_width - 50
+        if moving:
+            self.rect.top -= self.speed * sin((angle * pi) / 180)
+            self.rect.left += self.speed * cos((angle * pi) / 180)
+        else:
+            return
 
     def generate_supply(self):  # Special enemy has several supplies when generated
         random_supply = randint(0, 100)
@@ -276,11 +274,4 @@ class SpEnemy(pygame.sprite.Sprite, Enemy):
         elif 76 <= random_supply:
             return supply.Shield()
 
-    def reset(self):  # When moving down out of the screen
-        self.rect.left, self.rect.top = ((self.bg_width - self.rect.width) // 2,
-                                         -200)  # The spot where the plane appears
-        self.active = False
-        self.hit = False
-        self.energy = SpEnemy.upgraded_energy
-        self.shooting_interval = SpEnemy.upgraded_shooting_interval
 

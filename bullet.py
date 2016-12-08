@@ -63,6 +63,16 @@ class EnemyBullet3(pygame.sprite.Sprite, Bullet):
         self.active = False
         self.mask = pygame.mask.from_surface(self.image)
 
+class EnemyBullet4(pygame.sprite.Sprite, Bullet):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load("image/enemybullet4.png")
+        self.rect = self.image.get_rect()
+        self.speed = 5
+        self.power = 10
+        self.active = False
+        self.mask = pygame.mask.from_surface(self.image)
+
 
 # =============enemy laser bullets================
 class Laser(pygame.sprite.Sprite, Bullet):
@@ -76,11 +86,8 @@ class Laser(pygame.sprite.Sprite, Bullet):
         self.active = False
         self.mask = pygame.mask.from_surface(self.image)
 
-    def movesp(self, time, plane):
-        self.rect.center = plane.rect.center
-        if 90 <= (time - 70) % 800 < 190 or 490 <=(time - 70) % 800 < 590:
-            self.active = True
-            if self.rect.left < 200 or self.rect.left > 400:
-                self.active = False
+    def move(self, plane):
+        self.rect.left = plane.rect.centerx - 20
+        self.rect.top = plane.rect.centery
 
 
