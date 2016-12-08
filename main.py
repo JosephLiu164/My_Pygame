@@ -215,17 +215,41 @@ def main():
         enemy_bullets4.append(b)
         enemy_bullets.add(b)
 
-    lasers = []
-    laser_index = []
-    lasers_num = 5
-    for i in range(lasers_num):
-        l = bullet.Laser()
-        lasers.append(l)
+    lasers = pygame.sprite.Group() #Create laser
+    l = bullet.Laser()
+    lasers.add(l)
 
     while True:
         for event in pygame.event.get():
             if event.type == QUIT:
                 exit()
+
+        # ============Set the background to scroll (repetitively blit same two images)========
+        screen.blit(background, (x, y))
+        screen.blit(background, (x1, y1))
+        y1 += 3
+        y += 3
+        if y > HEIGHT:
+            y = -HEIGHT
+        if y1 > HEIGHT:
+            y1 = -HEIGHT
+
+
+
+        # ==============Game difficulty level================
+        if me.active:
+            critical_score = 3000 * 3 ** (level - 1)
+            if score >= critical_score:
+                level += 1
+                level_up_sound.play()
+                add_bosses(bosses,enemies,level) # Initialize the boss
+
+
+        # =============Detect whether there is a boss alive===========
+        for b in bosses:
+            boss_time = False
+            if b.active:
+                boss_time = True # If it is the boss time, other enemies will stop appearing
 
         # =================Control the plane=================
         control_plane_x = 0
@@ -245,32 +269,6 @@ def main():
                 me.move(movement_angle, False)
             else:
                 me.move(movement_angle, True)
-
-        # ==============Game difficulty level================
-        if me.active:
-            critical_score = 3000 * 3 ** (level - 1)
-            if score >= critical_score:
-                level += 1
-                level_up_sound.play()
-                add_bosses(bosses,enemies,level) # Initialize the boss
-
-
-        # =============Detect whether there is a boss alive===========
-        for b in bosses:
-            boss_time = False
-            if b.active:
-                boss_time = True # If it is the boss time, other enemies will stop appearing
-
-
-        # ============Set the background to scroll (repetitively blit same two images)========
-        screen.blit(background, (x, y))
-        screen.blit(background, (x1, y1))
-        y1 += 3
-        y += 3
-        if y > HEIGHT:
-            y = -HEIGHT
-        if y1 > HEIGHT:
-            y1 = -HEIGHT
 
         # =========Shooting bullets according to different bullet levels of my plane==========
         me.shooting_time_index += 1  # Shooting time index of my plane increase by 1 in every frame
@@ -331,32 +329,6 @@ def main():
                     if my_bullet_index >= my_bullet_num - 4:
                         my_bullet_index = 0
 
-        # ================The move of my bullets===========
-        if me.active:
-            for b in my_bullets:
-                if b.active:
-                    if me.bullet_level == 1 or me.bullet_level == 4 or me.bullet_level == 7:
-                        b.move()
-                        bullet_image = b.image1
-                    elif me.bullet_level == 2 or me.bullet_level == 5 or me.bullet_level == 8:
-                        b.move()
-                        bullet_image = b.image2
-                    elif me.bullet_level == 3 or me.bullet_level == 6 or me.bullet_level == 9 or me.bullet_level == 10:
-                        b.move()
-                        bullet_image = b.image3
-                    screen.blit(bullet_image, b.rect)
-
-        # ================Collision between my bullets and enemy planes============
-        for b in my_bullets:
-            if b.active:
-                enemies_hit = pygame.sprite.spritecollide(b, enemies, False, pygame.sprite.collide_mask)
-                for e in enemies_hit:
-                    if not e.destroyed:
-                        b.active = False
-                        e.energy -= 1
-                        e.hit = True  # Plane is hit
-
-
         # =====Detect whether the plane touches the supply======
         if me.active:
             supplies_got = pygame.sprite.spritecollide(me, supplies, True, pygame.sprite.collide_mask)
@@ -407,9 +379,35 @@ def main():
             enemies_down = pygame.sprite.spritecollide(me, enemies, False, pygame.sprite.collide_mask)
             if enemies_down:  # If the list of collision detection is not empty, then collision happens.
                 for e in enemies_down:
-                    if not e.destroyed:
+                    if not e.destroyed and not me.invincible:
                         me.life -= e.crashing_power
-                        e.destroyed = True  # Enemy plane destroyed
+                        if not isinstance(e, enemy.SpEnemy):
+                            e.destroyed = True  # Enemy plane destroyed
+
+        # ================The move of my bullets===========
+        if me.active:
+            for b in my_bullets:
+                if b.active:
+                    if me.bullet_level == 1 or me.bullet_level == 4 or me.bullet_level == 7:
+                        b.move()
+                        bullet_image = b.image1
+                    elif me.bullet_level == 2 or me.bullet_level == 5 or me.bullet_level == 8:
+                        b.move()
+                        bullet_image = b.image2
+                    elif me.bullet_level == 3 or me.bullet_level == 6 or me.bullet_level == 9 or me.bullet_level == 10:
+                        b.move()
+                        bullet_image = b.image3
+                    screen.blit(bullet_image, b.rect)
+
+        # ================Collision between my bullets and enemy planes============
+        for b in my_bullets:
+            if b.active:
+                enemies_hit = pygame.sprite.spritecollide(b, enemies, False, pygame.sprite.collide_mask)
+                for e in enemies_hit:
+                    if not e.destroyed:
+                        b.active = False
+                        e.energy -= 1
+                        e.hit = True  # Plane is hit
 
         # =========Detect whether my plane touches enemy bullets===========
         if me.active:
@@ -506,9 +504,9 @@ def main():
 
                 # ============Blid the laser============
                 for l in lasers:
-                    l.move(boss)
-                    screen.blit(l.image, l.rect)
-
+                    if boss.laser_active:
+                        l.move(boss)
+                        screen.blit(l.image, l.rect)
 
         # =========Blit the small enemies and have them move==========
         for each in small_enemies:

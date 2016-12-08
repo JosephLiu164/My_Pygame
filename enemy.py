@@ -232,7 +232,7 @@ class SpEnemy(pygame.sprite.Sprite):
         self.shooting_interval1 = int(30 * ((3 / 4) ** (level - 2)) + 1)
         self.shooting_interval2 = int(60 * ((3 / 4) ** (level - 2)) + 1)
         self.each_weapon_duration = 200
-        self.laser_duration = int(40 * ((4 / 3) ** (level - 2)))
+        self.laser_duration = int(30 * ((4 / 3) ** (level - 2)))
         self.laser_active = False
         self.shooting_time_index = 0
         self.direction_change_period = 10
@@ -267,11 +267,11 @@ class SpEnemy(pygame.sprite.Sprite):
 
     def generate_supply(self):  # Special enemy has several supplies when generated
         random_supply = randint(0, 100)
-        if 0 <= random_supply <= 50:
+        if 0 <= random_supply <= 33:
             return supply.BulletSupply()
-        elif 51 <= random_supply <= 75:
+        elif 34 <= random_supply <= 67:
             return supply.LifeSupply()
-        elif 76 <= random_supply:
+        elif 68 <= random_supply:
             return supply.Shield()
 
 

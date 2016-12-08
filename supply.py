@@ -28,7 +28,6 @@ class BulletSupply(pygame.sprite.Sprite, Supply):
 
 
 
-
 class LifeSupply(pygame.sprite.Sprite, Supply):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
