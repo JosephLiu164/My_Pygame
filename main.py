@@ -33,6 +33,8 @@ MidEnemy_destroy_sound = pygame.mixer.Sound("sound/enemy2_down.wav")
 MidEnemy_destroy_sound.set_volume(0.2)
 BigEnemy_destroy_sound = pygame.mixer.Sound("sound/enemy3_down.wav")
 BigEnemy_destroy_sound.set_volume(0.2)
+SpEnemy_destroy_sound = pygame.mixer.Sound("sound/enemy3_down.wav")
+SpEnemy_destroy_sound.set_volume(0.2)
 get_bomb_sound = pygame.mixer.Sound("sound/get_bomb.wav")
 get_bomb_sound.set_volume(0.2)
 get_bullet_sound = pygame.mixer.Sound("sound/get_double_laser.wav")
@@ -153,16 +155,13 @@ def main():
     small_enemies2 = pygame.sprite.Group()  # Creating small enemy plane group
     add_small_enemies2(small_enemies2, enemies, 1)
     sp_enemies = pygame.sprite.Group()  # Creating special enemy plane group
-    add_sp_enemies(sp_enemies, enemies, 0)  # No special enemy at very begaining
-    bosses = 0
-
     supplies = pygame.sprite.Group()
 
     # ==============Initializing my plane==============
     me = myplane.MyPlane(bg_size)
 
     # ===============user score=================
-    score = 0
+    score = 2900
     score_font = pygame.font.SysFont("Chalkboard", 24)
     game_over_player_score_font = pygame.font.SysFont("Chalkboard", 48)
     high_score_font = pygame.font.SysFont("Chalkboard", 36)
@@ -194,6 +193,14 @@ def main():
     for i in range(enemy_bullet2_num):
         b = bullet.EnemyBullet2()
         enemy_bullets2.append(b)
+        enemy_bullets.add(b)
+        
+    enemy_bullets3 = [] #Generate bullets3
+    enemy_bullet3_index = 0
+    enemy_bullet3_num = 300
+    for i in range(enemy_bullet3_num):
+        b = bullet.EnemyBullet3()
+        enemy_bullets3.append(b)
         enemy_bullets.add(b)
 
     bullets4 = []  # Generate enemy bullets of laser
@@ -235,6 +242,7 @@ def main():
                 add_small_enemies2(small_enemies2, enemies, 2)
                 add_mid_enemies(mid_enemies, enemies, 2)
                 add_big_enemies(big_enemies, enemies, 1)
+                add_sp_enemies(sp_enemies, enemies, 1)
                 for i in enemy.Enemy.__subclasses__():
                     i.upgraded_energy *= 1.2 ** (level - 1)
                 enemy.MidEnemy.upgraded_shooting_interval = int(
@@ -427,6 +435,58 @@ def main():
                                                               -90)  # Shooting bullets by middle enemy
                     enemy_bullet1_index = (enemy_bullet1_index + 1) % enemy_bullet1_num
 
+        # =========Blit the special enemies and have them move==========
+        for each in sp_enemies:
+            if each.active:
+                each.sp_move(each.shooting_time_index)
+                each.shooting_time_index += 1
+                screen.blit(each.image, each.rect)
+                timesp = (each.shooting_time_index - 70) % 400
+                if timesp < 40:
+                    if timesp % (each.shooting_interval // 10) == 0:  # Shoot a bullet at a certain interval
+                        bullet3_angle = (180 / pi) * atan2((each.rect.centery - me.rect.centery),
+                                                           (me.rect.centerx - each.rect.centerx))
+                        enemy_bullets3[enemy_bullet3_index].shoot((each.rect.centerx - 10, each.rect.centery),
+                                                                  bullet3_angle)  # Big enemy shooting bullets
+                        enemy_bullet3_index = (enemy_bullet3_index + 1) % enemy_bullet3_num
+                elif timesp >= 90 and timesp < 190:
+                    if timesp == 90:
+                        bullets4[bullet4_index].shoot((each.rect.centerx - 13, each.rect.centery + 55), -90)
+                        bullet4_index = (bullet4_index + 1) % bullet4_num
+                elif timesp >= 220 and timesp < 320:
+                    if timesp % (each.shooting_interval // 5) == 0:
+                        enemy_bullets3[enemy_bullet3_index].shoot((each.rect.centerx - 10, each.rect.centery), -36)
+                        enemy_bullets3[enemy_bullet3_index + 1].shoot((each.rect.centerx - 10, each.rect.centery), -72)
+                        enemy_bullets3[enemy_bullet3_index + 2].shoot((each.rect.centerx - 10, each.rect.centery), -108)
+                        enemy_bullets3[enemy_bullet3_index + 3].shoot((each.rect.centerx - 10, each.rect.centery), -144)
+                        enemy_bullet3_index = (enemy_bullet3_index + 4) % enemy_bullet3_num
+
+                # timesp=(each.shooting_time_index-70)%400
+                # if timesp<40:
+                #     if timesp % (each.shooting_interval//10)== 0: # Shoot a bullet at a certain interval
+                #         bullet3_angle = (180/pi)*atan2((each.rect.centery - me.rect.centery),
+                #                              (me.rect.centerx- each.rect.centerx))
+                #         enemy_bullets3[enemy_bullet3_index].shoot((each.rect.centerx - 10, each.rect.centery), bullet3_angle)  # Big enemy shooting bullets
+                #         enemy_bullet3_index = (enemy_bullet3_index + 1) % enemy_bullet3_num
+                # elif timesp>=90 and timesp<190:
+                #     if timesp==90:
+                #         bullets4[bullet4_index].shoot((each.rect.centerx - 13, each.rect.centery+55),-90)
+                #         bullet4_index = (bullet4_index + 1) % bullet4_num
+                # elif timesp>=220 and timesp<320:
+                #     if timesp % (each.shooting_interval//5)== 0:
+                #         enemy_bullets3[enemy_bullet3_index].shoot((each.rect.centerx - 10, each.rect.centery), -36)
+                #         enemy_bullets3[enemy_bullet3_index+1].shoot((each.rect.centerx - 10, each.rect.centery), -72)
+                #         enemy_bullets3[enemy_bullet3_index+2].shoot((each.rect.centerx - 10, each.rect.centery), -108)
+                #         enemy_bullets3[enemy_bullet3_index+3].shoot((each.rect.centerx - 10, each.rect.centery), -144)
+                #         enemy_bullet3_index = (enemy_bullet3_index + 4) % enemy_bullet3_num
+
+                # ================The move of the laser from special enemy===========-
+                for b in bullets4:
+                    if b.active:
+                        b.movesp(each.shooting_time_index, each)
+                        screen.blit(b.image, b.rect)
+
+
         # =========Blit the small enemies and have them move==========
         for each in small_enemies:
             if each.active:
@@ -509,7 +569,6 @@ def main():
                 screen.blit(animation_frame("me_hit", me.images_hit, 1), me.rect)
                 if all_animation.get("me_hit").is_finished:
                     me.hit = False
-
 
         # =============Display the user score====================
         score_text = score_font.render("Score: {}".format(str(score)), True, BLACK)

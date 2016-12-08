@@ -207,10 +207,11 @@ class BigEnemy(pygame.sprite.Sprite, Enemy):
 
 
 class SpEnemy(pygame.sprite.Sprite, Enemy):
-    sp_enemy_energy = 20
     shooting_time_index = 0
     initial_energy = 10
     upgraded_energy = 10
+    initial_shooting_interval = 100
+    upgraded_shooting_interval = 100
 
     def __init__(self, bg_size):
         pygame.sprite.Sprite.__init__(self)
@@ -226,6 +227,7 @@ class SpEnemy(pygame.sprite.Sprite, Enemy):
         self.bg_width, self.bg_height = bg_size[0], bg_size[1]
         self.speed = 5
         self.energy = self.initial_energy
+        self.shooting_interval = SpEnemy.initial_shooting_interval
         self.rect.left, self.rect.top = ((self.bg_width - self.rect.width) // 2,
                                          -200)  # The spot where the plane appears
         # To ensure that the enemy plane won't appear from the very beginning
@@ -280,3 +282,5 @@ class SpEnemy(pygame.sprite.Sprite, Enemy):
         self.active = False
         self.hit = False
         self.energy = SpEnemy.upgraded_energy
+        self.shooting_interval = SpEnemy.upgraded_shooting_interval
+
